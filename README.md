@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `nxc.py` script is a command-line utility designed to initialize a project directory with a set of starter files for web development. This utility simplifies the setup process by copying a predefined set of templates into the specified directory.
+The `nxc.py` script is a command-line utility that initializes a project directory with a set of starter files for web development. This utility copies a predefined set of templates into a specified directory.
 
 ## Features
 
@@ -13,9 +13,10 @@ The `nxc.py` script is a command-line utility designed to initialize a project d
 ## Requirements
 
 - Python 3.x
-- Access to file system operations which might require administrative or appropriate user permissions depending on the setup.
+- Access to file system operations that might need administrative, or appropriate user, permissions depending on the setup.
 
 ## Usage
 
-```bash
+```shell
 ./nxc.py --init [path_to_directory]
+```
