@@ -33,8 +33,6 @@ def main():
     # Define the source template directory
     script_dir = Path(__file__).parent
     templates_dir = script_dir / "templates"
-    logging.info(f"__file__: {__file__}")
-    logging.info(f"script_dir: {script_dir}")
     
     # Copy files from templates
     try:
