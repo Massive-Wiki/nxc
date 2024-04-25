@@ -33,6 +33,8 @@ def main():
     # Define the source template directory
     script_dir = Path(__file__).parent
     templates_dir = script_dir / "templates"
+    logging.info(f"__file__: {__file__}")
+    logging.info(f"script_dir: {script_dir}")
     
     # Copy files from templates
     try:
@@ -40,7 +42,7 @@ def main():
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
         # Copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".massivewikibuilder" / "this-website-themes")
-        logging.info(f"Project initialized successfully in {init_dir}")
+        logging.info(f"Project initialization successful in {init_dir}")
     except Exception as e:
         logging.error(f"Failed to initialize project: {e}")
 
