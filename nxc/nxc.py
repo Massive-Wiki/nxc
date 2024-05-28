@@ -6,22 +6,9 @@ import shutil
 import logging
 from pathlib import Path
 
-def main():
-    # Setup logger
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-    
-    # Setup argument parser
-    parser = argparse.ArgumentParser(description='Initialize project directory with starter files.')
-    parser.add_argument('--init', metavar='DIR', type=str, help='The directory to initialize')
-    args = parser.parse_args()
-    
-    # Check if --init was used
-    if args.init is None:
-        print("Please specify the directory to initialize with --init")
-        return
-    
+def init_site(directory):
     # Check and handle the specified directory
-    init_dir = Path(args.init)
+    init_dir = Path(directory)
     if init_dir.exists():
         if any(init_dir.iterdir()):
             logging.error(f"The directory {init_dir} is not empty.")
@@ -29,7 +16,7 @@ def main():
     else:
         logging.info(f"Creating directory {init_dir}")
         os.makedirs(init_dir)
-    
+        
     # Define the source template directory
     script_dir = Path(__file__).parent
     templates_dir = script_dir / "templates"
@@ -43,6 +30,33 @@ def main():
         logging.info(f"Project initialization successful in {init_dir}")
     except Exception as e:
         logging.error(f"Failed to initialize project: {e}")
+    return
+
+def main():
+    # Setup logger
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    
+    # Setup argument parser
+    parser = argparse.ArgumentParser(description='Initialize project directory with starter files.')
+    parser.add_argument('command', choices=['init', 'build'], help='Command to execute')
+    parser.add_argument('-d','--directory', metavar='DIR', type=str, help='Directory to process')
+
+    args = parser.parse_args()
+    logging.info(args)
+
+    # Validate and process arguments
+    match args.command:
+        case 'init':
+            if not args.directory:
+                parser.error("Please specify the directory to initialize with --directory")
+                return
+            print(f'Initializing in directory: {args.directory}')
+            init_site(args.directory)
+        case 'build':
+            print(f'Building from directory: {args.directory} to output: {args.output}')
+            return
+        case _:
+            return
 
 if __name__ == '__main__':
-    main()
+    exit(main())
