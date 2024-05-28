@@ -32,6 +32,10 @@ def init_site(directory):
         logging.error(f"Failed to initialize project: {e}")
     return
 
+def build_site(site_dir, output_dir):
+    logging.info('build this website from %s to %s', site_dir, output_dir)
+    return
+
 def main():
     # Setup logger
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -40,7 +44,8 @@ def main():
     parser = argparse.ArgumentParser(description='Initialize project directory with starter files.')
     parser.add_argument('command', choices=['init', 'build'], help='Command to execute')
     parser.add_argument('-d','--directory', metavar='DIR', type=str, help='Directory to process')
-
+    parser.add_argument('-o', '--output', help='output directory')
+    
     args = parser.parse_args()
     logging.info(args)
 
@@ -53,8 +58,11 @@ def main():
             print(f'Initializing in directory: {args.directory}')
             init_site(args.directory)
         case 'build':
+            if not args.directory or not args.output:
+                parser.error('Both --directory and --output are required for "build" command')
+                return
             print(f'Building from directory: {args.directory} to output: {args.output}')
-            return
+            build_site(args.directory, args.output)
         case _:
             return
 
