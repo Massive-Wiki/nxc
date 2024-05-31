@@ -368,7 +368,7 @@ def build_site(args):
 def main():
     # set up logging
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-    logging.info("main stub for calling 'build_nxc()")
+    logging.info("main stub for calling build_nxc()")
 
     # setup argument parsers
     parser = argparse.ArgumentParser(description='Initialize or build website for a collection of Markdown files.')
