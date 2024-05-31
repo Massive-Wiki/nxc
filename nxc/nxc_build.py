@@ -120,8 +120,7 @@ def build_site(args):
     dir_output = Path(args.output).resolve().as_posix()
     dir_templates = Path(args.templates).resolve().as_posix()
     logging.info(dir_templates)
-#    dir_wiki = Path(args.wiki).resolve().as_posix()
-    dir_wiki = Path(args.input).resolve().as_posix()    
+    dir_wiki = Path(args.input).resolve().as_posix()
     rootdir = '/'
 
     # get a Jinja2 environment
@@ -371,14 +370,14 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     logging.info("main stub for calling 'build_nxc()")
 
-    # setup argument parsers                                                                                             
+    # setup argument parsers
     parser = argparse.ArgumentParser(description='Initialize or build website for a collection of Markdown files.')
     subparsers = parser.add_subparsers(required=True)
-    # subparser for "init" command                                                                                       
+    # subparser for "init" command
     parser_init = subparsers.add_parser('init')
     parser_init.add_argument('-d','--directory', metavar='DIR', type=str, required=True, help='Directory to initialize.')
     parser_init.set_defaults(command='init')
-    # subparser for "build" command                                                                                      
+    # subparser for "build" command
     parser_build = subparsers.add_parser('build')
     parser_build.add_argument('-i', '--input', required=True, help='directory of Markdown files')
     parser_build.add_argument('-o', '--output', required=True, help='output directory')
@@ -394,13 +393,12 @@ def main():
     match args.command:
         case 'init':
             print(f'Initializing in directory: {args.directory}')
-#            init_site(args.directory)                                                                                   
+#            init_site(args.directory)
         case 'build':
             print(f'Building from input directory: {args.input} to output: {args.output}')
             build_site(args)
         case _:
             return
-
 
 if __name__ == "__main__":
     exit(main())
