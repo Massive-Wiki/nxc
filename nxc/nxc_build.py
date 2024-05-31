@@ -1,18 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ################################################################
 #
-# mwb.py - Massive Wiki Builder
-# https://github.com/peterkaminski/massivewikibuilder
+# nxcbuild.py - Massive Web Builder
+# https://github.com/Massive-Wiki/nxc
 #
 ################################################################
 
-APPVERSION = 'v3.1.3-candidate'
-APPNAME = 'Massive Wiki Builder'
-
-# set up logging
-import logging, os
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'WARNING').upper())
+APPVERSION = 'v1.0.0-candidate'
+APPNAME = 'Massive Web Builder'
 
 # python libraries
 import argparse
@@ -20,6 +16,8 @@ import datetime
 import glob
 import hashlib
 import json
+import logging
+import os
 from pathlib import Path
 import re
 import shutil
@@ -43,17 +41,6 @@ wiki_pagelinks = {}
 def markdown_convert(markdown_text, fileroot, file_id):
     with MassiveWikiRenderer(rootdir='/',fileroot=fileroot,wikilinks=wiki_pagelinks,file_id=file_id) as renderer:
         return renderer.render(Document(markdown_text))
-
-# set up argparse
-def init_argparse():
-    parser = argparse.ArgumentParser(description='Generate HTML pages from Markdown wiki pages.')
-    parser.add_argument('--config', '-c', required=True, help='path to YAML config file')
-    parser.add_argument('--output', '-o', required=True, help='directory for output')
-    parser.add_argument('--templates', '-t', required=True, help='directory for HTML templates')
-    parser.add_argument('--wiki', '-w', required=True, help='directory containing wiki files (Markdown + other)')
-    parser.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
-    parser.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
-    return parser
 
 # set up a Jinja2 environment
 def jinja2_environment(path_to_templates):
@@ -120,22 +107,21 @@ def datetime_date_serializer(o):
     if isinstance(o, datetime.date):
         return o.isoformat()
 
-def main():
+def build_site(args):
     logging.debug("Initializing")
-    
-    argparser = init_argparse()
-    args = argparser.parse_args()
-    logging.debug("args: %s", args)
+    logging.info("args: %s", args)
 
     # get configuration
-    config = load_config(args.config)
+    config = load_config(Path(args.config).resolve().as_posix())
     if not 'recent_changes_count' in config:
         config['recent_changes_count'] = 5
 
     # remember paths
     dir_output = Path(args.output).resolve().as_posix()
     dir_templates = Path(args.templates).resolve().as_posix()
-    dir_wiki = Path(args.wiki).resolve().as_posix()
+    logging.info(dir_templates)
+#    dir_wiki = Path(args.wiki).resolve().as_posix()
+    dir_wiki = Path(args.input).resolve().as_posix()    
     rootdir = '/'
 
     # get a Jinja2 environment
@@ -217,7 +203,7 @@ def main():
         build_time = datetime.datetime.now(datetime.timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 
         if 'sidebar' in config:
-            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], args.wiki)
+            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], args.input)
         else:
             sidebar_body = ''
 
@@ -236,7 +222,7 @@ def main():
                 (Path(dir_output+clean_filepath).with_suffix(".json")).write_text(json.dumps(front_matter, indent=2, default=datetime_date_serializer))
                 # render and output HTML
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
-                markdown_body = markdown_convert(markdown_text, args.wiki, file_id)
+                markdown_body = markdown_convert(markdown_text, args.input, file_id)
                 html = page.render(
                     build_time=build_time,
                     wiki_title=config['wiki_title'],
@@ -378,6 +364,43 @@ def main():
         print(f"\n{e}\n\nCheck that arguments specify valid files and directories.\n")
     except Exception as e:
         traceback.print_exc(e)
+    return
+
+def main():
+    # set up logging
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    logging.info("main stub for calling 'build_nxc()")
+
+    # setup argument parsers                                                                                             
+    parser = argparse.ArgumentParser(description='Initialize or build website for a collection of Markdown files.')
+    subparsers = parser.add_subparsers(required=True)
+    # subparser for "init" command                                                                                       
+    parser_init = subparsers.add_parser('init')
+    parser_init.add_argument('-d','--directory', metavar='DIR', type=str, required=True, help='Directory to initialize.')
+    parser_init.set_defaults(command='init')
+    # subparser for "build" command                                                                                      
+    parser_build = subparsers.add_parser('build')
+    parser_build.add_argument('-i', '--input', required=True, help='directory of Markdown files')
+    parser_build.add_argument('-o', '--output', required=True, help='output directory')
+    parser_build.add_argument('--config', '-c', default='./nxc.yaml', help='path to YAML config file')
+    parser_build.add_argument('--templates', '-t', default='./this-website-themes/dolce', help='directory for HTML templates')
+    parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
+    parser_build.add_argument('--commits', action='store_false', help='include this to read Git commit messages and times for All Pages')
+    parser_build.set_defaults(command='build')
+
+    args = parser.parse_args()
+    logging.info(args)
+
+    match args.command:
+        case 'init':
+            print(f'Initializing in directory: {args.directory}')
+#            init_site(args.directory)                                                                                   
+        case 'build':
+            print(f'Building from input directory: {args.input} to output: {args.output}')
+            build_site(args)
+        case _:
+            return
+
 
 if __name__ == "__main__":
     exit(main())
