@@ -52,7 +52,7 @@ def init_site(directory):
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
         config_doc['edit_url'] = f"https://{git_repo}/"
-        config_doc['repo'] = f'<a href="https://"{git_repo}">{git_repo.split("/")[-1]}</a>'
+        config_doc['repo'] = f'<a href="https://{git_repo}">{git_repo.split("/")[-1]}</a>'
 
     # write out configuration information
     output_file = f'{init_dir}/.massivewikibuilder/nxc.yaml'
