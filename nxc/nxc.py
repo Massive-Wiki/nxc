@@ -62,11 +62,11 @@ def init_site(directory):
     return
 
 def build_site(args):
-    site_dir = args.input
-    output_dir = args.output
-    logging.info('build this website from %s to %s', site_dir, output_dir)
-    logging.info(f"config file: {site_dir}{args.config}")
-    logging.info(f"templates: {site_dir}{args.templates}")
+    input_dir = args[0].input
+    output_dir = args[0].output
+#    logging.info(f"build website in {output_dir} from Markdown files in {input_dir}")
+    logging.info(f"using config file: {input_dir}{args[0].config}")
+    logging.info(f"using templates: {input_dir}{args[0].templates}")
     return
 
 def main():
@@ -99,8 +99,8 @@ def main():
             logging.info('Initializing in directory: %s', {args[0].directory[0]})
             init_site(args[0].directory[0])
         case 'build':
-            print(f'Building from input directory: {args.input} to output: {args.output}')
-            #            build_site(args)
+            logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
+            build_site(args)
         case _:
             return
 
