@@ -27,7 +27,7 @@ import yaml
 
 # pip install - mistletoe based Markdown to HTML conversion
 from mistletoe import Document
-from mistletoe_renderer.massivewiki import MassiveWikiRenderer
+from nxc.mistletoe_renderer.massivewiki import MassiveWikiRenderer
 
 wiki_pagelinks = {}
 
@@ -431,13 +431,12 @@ def main():
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
     parser_build.add_argument('--config', '-c', default='/.massivewikibuilder/nxc.yaml', help='path to YAML config file')
     parser_build.add_argument('--templates', '-t', default='/.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
-    parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
+    parser_build.add_argument('--lunr', action='store_true', default=True, help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
     parser_build.set_defaults(cmd='build')
     
     args = parser.parse_known_args()
     logging.info(args)
-
 
     match args[0].cmd:
         case 'init':
