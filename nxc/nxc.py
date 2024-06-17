@@ -105,10 +105,10 @@ def build_site(args):
     input_dir = args[0].input
     output_dir = args[0].output
     logging.info(f"build website in {output_dir} from Markdown files in {input_dir}")
-    config_file = f"{input_dir}{args[0].config}"
+    config_file = f"{input_dir}/{args[0].config}"
     logging.info(f"using config file: {config_file}")
-    templates_dir = f"{args[0].templates}"
-    logging.info(f"using templates: {templates_dir}")
+    templates_dir = f"{input_dir}/{args[0].templates}"
+    logging.info(f"using website theme templates: {templates_dir}")
     
     logging.info("args: %s", args)
 #    return
@@ -368,7 +368,7 @@ def build_site(args):
     return
 
 def init_site(directory):
-    # Check and handle the specified directory
+    # Check the specified directory
     init_dir = Path(directory)
     if init_dir.exists():
         # if any(init_dir.iterdir()):
@@ -429,8 +429,8 @@ def main():
     parser_build = subparsers.add_parser('build')
     parser_build.add_argument('-i', '--input', required=True, help='input directory of Markdown files')
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
-    parser_build.add_argument('--config', '-c', default='/.massivewikibuilder/nxc.yaml', help='path to YAML config file')
-    parser_build.add_argument('--templates', '-t', default='/.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
+    parser_build.add_argument('--config', '-c', default='.massivewikibuilder/nxc.yaml', help='path to YAML config file')
+    parser_build.add_argument('--templates', '-t', default=f'.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
     parser_build.add_argument('--lunr', action='store_true', default=True, help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
     parser_build.set_defaults(cmd='build')
@@ -446,6 +446,7 @@ def main():
             logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
             build_site(args)
         case _:
+            print("Usage: nxc [init directory | build -i input_directory -o website_htmlfiles_directory]")
             return
 
 if __name__ == '__main__':
