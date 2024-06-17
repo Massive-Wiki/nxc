@@ -385,11 +385,15 @@ def init_site(directory):
     templates_dir = script_dir / "templates"
     # Copy files from templates
     try:
-        # Copy netlify.toml to the root of the new directory
+        # copy netlify.toml to the root of the new directory
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
-        # Copy this-website-themes directory
+        # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".massivewikibuilder" / "this-website-themes")
         logging.debug(f"template file copy successful in {init_dir}")
+        # copy javascript and node info
+        shutil.copy(templates_dir / "build-index.js", init_dir / ".massivewikibuilder" / "build-index.js")
+        shutil.copy(templates_dir / "package.json", init_dir / ".massivewikibuilder" / "package.json")
+        shutil.copy(templates_dir / "package-lock.json", init_dir / ".massivewikibuilder" / "package-lock.json")
     except Exception as e:
         logging.error(f"Failed to initialize project: {e}")
     
