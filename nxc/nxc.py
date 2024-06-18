@@ -389,11 +389,11 @@ def init_site(directory):
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".massivewikibuilder" / "this-website-themes")
-        logging.debug(f"template file copy successful in {init_dir}")
         # copy javascript and node info
         shutil.copy(templates_dir / "build-index.js", init_dir / ".massivewikibuilder" / "build-index.js")
         shutil.copy(templates_dir / "package.json", init_dir / ".massivewikibuilder" / "package.json")
         shutil.copy(templates_dir / "package-lock.json", init_dir / ".massivewikibuilder" / "package-lock.json")
+        logging.debug(f"template file copy successful in {init_dir}")
     except Exception as e:
         logging.error(f"Failed to initialize project: {e}")
     
@@ -442,16 +442,14 @@ def main():
     args = parser.parse_known_args()
     logging.info(args)
 
-    match args[0].cmd:
-        case 'init':
-            logging.info('Initializing in directory: %s', {args[0].directory[0]})
-            init_site(args[0].directory[0])
-        case 'build':
-            logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
-            build_site(args)
-        case _:
-            print("Usage: nxc [init directory | build -i input_directory -o website_htmlfiles_directory]")
-            return
+    if args[0].cmd == 'init':
+        logging.info('Initializing in directory: %s', {args[0].directory[0]})
+        init_site(args[0].directory[0])
+    elif args[0].cmd == 'build':
+        logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
+        build_site(args)
+    else:
+        return
 
 if __name__ == '__main__':
     exit(main())
