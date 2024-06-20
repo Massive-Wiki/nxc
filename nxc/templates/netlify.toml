@@ -1,4 +1,8 @@
-
 [build]
-  publish = "build"
-  command = "echo 'Build commands go here'"
+  ignore = "/bin/false"
+  base = ".massivewikibuilder"
+  publish = "./output"
+  command = "nxc build -i .. -o ./output --lunr --commits"
+
+[build.environment]
+  PYTHON_VERSION = "3.8"

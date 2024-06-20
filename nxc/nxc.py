@@ -389,7 +389,8 @@ def init_site(directory):
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".massivewikibuilder" / "this-website-themes")
-        # copy javascript and node info
+        # copy pip req'ts, javascript, and node info
+        shutil.copy(templates_dir / "requirements.txt", init_dir / ".massivewikibuilder" / "requirements.txt")
         shutil.copy(templates_dir / "build-index.js", init_dir / ".massivewikibuilder" / "build-index.js")
         shutil.copy(templates_dir / "package.json", init_dir / ".massivewikibuilder" / "package.json")
         shutil.copy(templates_dir / "package-lock.json", init_dir / ".massivewikibuilder" / "package-lock.json")
@@ -435,7 +436,7 @@ def main():
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
     parser_build.add_argument('--config', '-c', default='.massivewikibuilder/nxc.yaml', help='path to YAML config file')
     parser_build.add_argument('--templates', '-t', default=f'.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
-    parser_build.add_argument('--lunr', action='store_true', default=True, help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
+    parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
     parser_build.set_defaults(cmd='build')
     
