@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-APPVERSION = 'v1.0.0-candidate'
+APPVERSION = 'v4.0.0-candidate'
 APPNAME = 'Massive Web Builder'
 
 # python libraries
@@ -31,8 +31,8 @@ from nxc.mistletoe_renderer.massivewiki import MassiveWikiRenderer
 
 wiki_pagelinks = {}
 
-def markdown_convert(markdown_text, fileroot, file_id):
-    with MassiveWikiRenderer(rootdir='/',fileroot=fileroot,wikilinks=wiki_pagelinks,file_id=file_id) as renderer:
+def markdown_convert(markdown_text, rootdir, fileroot, file_id):
+    with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id) as renderer:
         return renderer.render(Document(markdown_text))
 
 # set up a Jinja2 environment
@@ -87,13 +87,13 @@ def read_markdown_and_front_matter(path):
     return ''.join(lines), {}
 
 # read and convert Sidebar markdown to HTML
-def sidebar_convert_markdown(path, fileroot):
+def sidebar_convert_markdown(path, rootdir, fileroot):
     if path.exists():
         markdown_text, front_matter = read_markdown_and_front_matter(path)
     else:
         markdown_text = ''
     fid = hashlib.md5(Path(path).stem.lower().encode()).hexdigest()
-    return markdown_convert(markdown_text, fileroot, fid)
+    return markdown_convert(markdown_text, rootdir, fileroot, fid)
 
 # handle datetime.date serialization for json.dumps()
 def datetime_date_serializer(o):
@@ -124,6 +124,7 @@ def build_site(args):
     logging.info(f"dir_templates :{dir_templates}")
     dir_wiki = Path(args[0].input).resolve().as_posix()
     rootdir = '/'
+    websiteroot = args[0].root
 
     # get a Jinja2 environment
     j = jinja2_environment(dir_templates)
@@ -204,7 +205,7 @@ def build_site(args):
         build_time = datetime.datetime.now(datetime.timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 
         if 'sidebar' in config:
-            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], args[0].input)
+            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], rootdir, args[0].input)
         else:
             sidebar_body = ''
 
@@ -223,7 +224,7 @@ def build_site(args):
                 (Path(dir_output+clean_filepath).with_suffix(".json")).write_text(json.dumps(front_matter, indent=2, default=datetime_date_serializer))
                 # render and output HTML
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
-                markdown_body = markdown_convert(markdown_text, args[0].input, file_id)
+                markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id)
                 html = page.render(
                     build_time=build_time,
                     wiki_title=config['wiki_title'],
@@ -436,6 +437,7 @@ def main():
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
     parser_build.add_argument('--config', '-c', default='.massivewikibuilder/nxc.yaml', help='path to YAML config file')
     parser_build.add_argument('--templates', '-t', default=f'.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
+    parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host Github Pages)')
     parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
     parser_build.set_defaults(cmd='build')
