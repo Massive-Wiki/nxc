@@ -31,8 +31,8 @@ from nxc.mistletoe_renderer.massivewiki import MassiveWikiRenderer
 
 wiki_pagelinks = {}
 
-def markdown_convert(markdown_text, rootdir, fileroot, file_id):
-    with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id) as renderer:
+def markdown_convert(markdown_text, rootdir, fileroot, file_id, websiteroot):
+    with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id, websiteroot=websiteroot) as renderer:
         return renderer.render(Document(markdown_text))
 
 # set up a Jinja2 environment
@@ -87,13 +87,13 @@ def read_markdown_and_front_matter(path):
     return ''.join(lines), {}
 
 # read and convert Sidebar markdown to HTML
-def sidebar_convert_markdown(path, rootdir, fileroot):
+def sidebar_convert_markdown(path, rootdir, fileroot, websiteroot):
     if path.exists():
         markdown_text, front_matter = read_markdown_and_front_matter(path)
     else:
         markdown_text = ''
     fid = hashlib.md5(Path(path).stem.lower().encode()).hexdigest()
-    return markdown_convert(markdown_text, rootdir, fileroot, fid)
+    return markdown_convert(markdown_text, rootdir, fileroot, fid, websiteroot)
 
 # handle datetime.date serialization for json.dumps()
 def datetime_date_serializer(o):
@@ -134,10 +134,10 @@ def build_site(args):
         timestamp_thisrun = time.time()
         lunr_index_filename = f"lunr-index-{timestamp_thisrun}.js" # needed for next two variables
         lunr_index_filepath = Path(dir_output) / lunr_index_filename # local filesystem
-        lunr_index_sitepath = '/'+lunr_index_filename # website
+        lunr_index_sitepath = f"{websiteroot}/{lunr_index_filename}" # website
         lunr_posts_filename = f"lunr-posts-{timestamp_thisrun}.js" # needed for next two variables
         lunr_posts_filepath = Path(dir_output) / lunr_posts_filename # local filesystem
-        lunr_posts_sitepath = '/'+lunr_posts_filename # website
+        lunr_posts_sitepath = f"{websiteroot}/{lunr_posts_filename}" # website
     else:
         # needed to feed to themes
         lunr_index_sitepath = ''
@@ -205,7 +205,7 @@ def build_site(args):
         build_time = datetime.datetime.now(datetime.timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 
         if 'sidebar' in config:
-            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], rootdir, args[0].input)
+            sidebar_body = sidebar_convert_markdown(Path(dir_wiki) / config['sidebar'], rootdir, args[0].input, websiteroot)
         else:
             sidebar_body = ''
 
@@ -224,7 +224,7 @@ def build_site(args):
                 (Path(dir_output+clean_filepath).with_suffix(".json")).write_text(json.dumps(front_matter, indent=2, default=datetime_date_serializer))
                 # render and output HTML
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
-                markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id)
+                markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id, websiteroot)
                 html = page.render(
                     build_time=build_time,
                     wiki_title=config['wiki_title'],
@@ -237,6 +237,7 @@ def build_site(args):
                     backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
                     lunr_index_sitepath=lunr_index_sitepath,
                     lunr_posts_sitepath=lunr_posts_sitepath,
+                    websiteroot=websiteroot,
                 )
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
@@ -298,6 +299,7 @@ def build_site(args):
             sidebar_body=sidebar_body,
             lunr_index_sitepath=lunr_index_sitepath,
             lunr_posts_sitepath=lunr_posts_sitepath,
+            websiteroot=websiteroot,
         )
         (Path(dir_output) / "search.html").write_text(html)
 
@@ -329,8 +331,10 @@ def build_site(args):
             author=config['author'],
             repo=config['repo'],
             license=config['license'],
+            sidebar_body=sidebar_body,
             lunr_index_sitepath=lunr_index_sitepath,
             lunr_posts_sitepath=lunr_posts_sitepath,
+            websiteroot=websiteroot,
         )
         (Path(dir_output) / "all-pages.html").write_text(html)
 
@@ -347,6 +351,7 @@ def build_site(args):
             sidebar_body=sidebar_body,
             lunr_index_sitepath=lunr_index_sitepath,
             lunr_posts_sitepath=lunr_posts_sitepath,
+            websiteroot=websiteroot,
         )
         (Path(dir_output) / "recent-pages.html").write_text(html)
 
