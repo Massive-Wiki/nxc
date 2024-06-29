@@ -33,7 +33,11 @@ wiki_pagelinks = {}
 
 def markdown_convert(markdown_text, rootdir, fileroot, file_id, websiteroot):
     with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id, websiteroot=websiteroot) as renderer:
-        return renderer.render(Document(markdown_text))
+        # incorporate websiteroot into local website page links
+        locallink_pattern = r'(\[.*?\])\(\/(.*?\.html)\)'
+        locallink_replacement = rf'\1({websiteroot}/\2)'
+        page_markdown_text = re.sub(locallink_pattern, locallink_replacement, markdown_text)
+        return renderer.render(Document(page_markdown_text))
 
 # set up a Jinja2 environment
 def jinja2_environment(path_to_templates):
