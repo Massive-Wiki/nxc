@@ -222,7 +222,6 @@ def build_site(args):
         # render all the Markdown files
         logging.debug("copy wiki to output; render .md files to HTML")
         all_pages = []
-        page = j.get_template('page.html')
         build_time = datetime.datetime.now(datetime.timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 
         if 'sidebar' in config:
@@ -246,20 +245,10 @@ def build_site(args):
                 # render and output HTML
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
                 markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id, websiteroot)
-                html = page.render(
-                    build_time=build_time,
-                    wiki_title=config['wiki_title'],
-                    author=config['author'],
-                    repo=config['repo'],
-                    license=config['license'],
-                    title=Path(file).stem,
-                    markdown_body=markdown_body,
-                    sidebar_body=sidebar_body,
-                    backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                    lunr_index_sitepath=lunr_index_sitepath,
-                    lunr_posts_sitepath=lunr_posts_sitepath,
-                    websiteroot=websiteroot,
-                )
+                html = render_template('page.html',
+                                       title=Path(file).stem,
+                                       markdown_body=markdown_body,
+                                       backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'])
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
