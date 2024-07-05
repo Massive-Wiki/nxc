@@ -104,6 +104,7 @@ def datetime_date_serializer(o):
     if isinstance(o, datetime.date):
         return o.isoformat()
 
+# build website
 def build_site(args):
     logging.debug("Building ....")
     input_dir = args[0].input
@@ -115,7 +116,6 @@ def build_site(args):
     logging.info(f"using website theme templates: {templates_dir}")
     
     logging.info("args: %s", args)
-#    return
 
     # get configuration
     config = load_config(Path(config_file).resolve().as_posix())
@@ -132,6 +132,23 @@ def build_site(args):
 
     # get a Jinja2 environment
     j = jinja2_environment(dir_templates)
+
+    # render html pages from jinja2 templates
+    def render_template(template_name, **kwargs):
+        common_args = {
+            'build_time': build_time,
+            'wiki_title': config['wiki_title'],
+            'author': config['author'],
+            'repo': config['repo'],
+            'license': config['license'],
+            'sidebar_body': sidebar_body,
+            'lunr_index_sitepath': lunr_index_sitepath,
+            'lunr_posts_sitepath': lunr_posts_sitepath,
+            'websiteroot': websiteroot,
+        }
+        # Merge common_args with any additional kwargs
+        render_args = {**common_args, **kwargs}
+        return j.get_template(template_name).render(**render_args)
 
     # set up lunr_index_filename and lunr_index_sitepath
     if (args[0].lunr):
@@ -292,19 +309,7 @@ def build_site(args):
             with open(lunr_posts_filepath, "w") as outfile:
                 print("lunr_posts=", lunr_posts, file=outfile)
 
-        # temporary handling of search.html - TODO, do this better :-)
-        search_page = j.get_template('search.html')
-        html = search_page.render(
-            build_time=build_time,
-            wiki_title=config['wiki_title'],
-            author=config['author'],
-            repo=config['repo'],
-            license=config['license'],
-            sidebar_body=sidebar_body,
-            lunr_index_sitepath=lunr_index_sitepath,
-            lunr_posts_sitepath=lunr_posts_sitepath,
-            websiteroot=websiteroot,
-        )
+        html = render_template('search.html')
         (Path(dir_output) / "search.html").write_text(html)
 
         # copy README.html to index.html if no index.html
@@ -327,36 +332,16 @@ def build_site(args):
         else:
             all_pages_chrono = ''
         all_pages = sorted(all_pages, key=lambda i: i['title'].lower())
-        html = j.get_template('all-pages.html').render(
-            build_time=build_time,
-            pages=all_pages,
-            pages_chrono=all_pages_chrono,
-            wiki_title=config['wiki_title'],
-            author=config['author'],
-            repo=config['repo'],
-            license=config['license'],
-            sidebar_body=sidebar_body,
-            lunr_index_sitepath=lunr_index_sitepath,
-            lunr_posts_sitepath=lunr_posts_sitepath,
-            websiteroot=websiteroot,
-        )
+        html = render_template('all-pages.html',
+                               pages=all_pages,
+                               pages_chrono=all_pages_chrono)
         (Path(dir_output) / "all-pages.html").write_text(html)
 
         # build recent-pages.html
         logging.debug(f"build recent-pages.html with {config['recent_changes_count']} entries.")
         recent_pages = all_pages_chrono[:config['recent_changes_count']]
-        html = j.get_template('recent-pages.html').render(
-            build_time=build_time,
-            pages=recent_pages,
-            wiki_title=config['wiki_title'],
-            author=config['author'],
-            repo=config['repo'],
-            license=config['license'],
-            sidebar_body=sidebar_body,
-            lunr_index_sitepath=lunr_index_sitepath,
-            lunr_posts_sitepath=lunr_posts_sitepath,
-            websiteroot=websiteroot,
-        )
+        html = render_template('recent-pages.html',
+                               pages=recent_pages)
         (Path(dir_output) / "recent-pages.html").write_text(html)
 
         # done
@@ -377,6 +362,7 @@ def build_site(args):
         traceback.print_exc(e)
     return
 
+# initialize new nxc directory
 def init_site(directory):
     # Check the specified directory
     init_dir = Path(directory)
