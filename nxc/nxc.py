@@ -242,14 +242,21 @@ def build_site(args):
                     front_matter = {}
                 # output JSON of front matter
                 (Path(dir_output+clean_filepath).with_suffix(".json")).write_text(json.dumps(front_matter, indent=2, default=datetime_date_serializer))
-                # render and output HTML
+                # render and output HTML (empty edit_url on README and Sidebar pages)
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
                 markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id, websiteroot)
-                html = render_template('page.html',
-                                       title=Path(file).stem,
-                                       markdown_body=markdown_body,
-                                       backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                       edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}")
+                if Path(file).stem == 'README' or Path(file).name == config['sidebar']:
+                    html = render_template('page.html',
+                                           title=Path(file).stem,
+                                           markdown_body=markdown_body,
+                                           backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
+                                           edit_url='')
+                else:
+                    html = render_template('page.html',
+                                           title=Path(file).stem,
+                                           markdown_body=markdown_body,
+                                           backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
+                                           edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}")
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
