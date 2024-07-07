@@ -248,7 +248,8 @@ def build_site(args):
                 html = render_template('page.html',
                                        title=Path(file).stem,
                                        markdown_body=markdown_body,
-                                       backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'])
+                                       backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
+                                       edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}")
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time

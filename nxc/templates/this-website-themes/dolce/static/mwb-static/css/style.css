@@ -49,8 +49,10 @@ body {
 .footer {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
+
 .has-text-centered {
   text-align: center !important; }
+
 .button {
   background-color: white;
   border-color: #dbdbdb;
@@ -68,3 +70,42 @@ body {
     background-color: whitesmoke;
     border-color: transparent;
     color: rgba(0, 0, 0, 0.7); }
+
+/* Edit This Page information tooltip */
+  .edit-this-page-tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .edit-this-page-button {
+    display: inline-block;
+    padding: .25em .5em;
+    background-color: #22aa22;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: .5em;
+  }
+
+  .edit-this-page-tooltip .edit-this-page-tooltiptext {
+    visibility: hidden;
+    width: 300px;
+    background-color: #444444;
+    color: #fff;
+    text-align: center;
+    border-radius: .5em;
+    padding: .5em;
+    /* Positioning */
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    /* Fade in */
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .edit-this-page-tooltip:hover .edit-this-page-tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
