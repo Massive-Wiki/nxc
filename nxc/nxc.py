@@ -19,6 +19,7 @@ import sys
 import textwrap
 import time
 import traceback
+from urllib.parse import urlparse
 
 # pip install
 from dateutil.parser import parse # pip install python-dateutil
@@ -33,7 +34,7 @@ wiki_pagelinks = {}
 
 def markdown_convert(markdown_text, rootdir, fileroot, file_id, websiteroot):
     with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id, websiteroot=websiteroot) as renderer:
-        # incorporate websiteroot into local website page links
+        # include websiteroot in local website page links
         locallink_pattern = r'(\[.*?\])\(\/(.*?\.html)\)'
         locallink_replacement = rf'\1({websiteroot}/\2)'
         page_markdown_text = re.sub(locallink_pattern, locallink_replacement, markdown_text)
@@ -256,7 +257,8 @@ def build_site(args):
                                            title=Path(file).stem,
                                            markdown_body=markdown_body,
                                            backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                           edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}")
+                                           edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
+                                           git_forge=urlparse(config['edit_url']).hostname)
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
@@ -396,7 +398,7 @@ def init_site(directory):
     # get configuration input
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
-    git_repo = input("Enter Git forge/repository name: ")
+    git_repo = input("Enter Git forge/organization/repository name: ")
 
     # read in mwb.yaml template
     with open(templates_dir / 'mwb.yaml','r',encoding='utf-8') as f:
