@@ -398,15 +398,16 @@ def init_site(directory):
     # get configuration input
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
-    git_repo = input("Enter Git forge/organization/repository name: ")
+    git_repo = input("Enter Git repository url: ")
+    git_repo_url = f"https://{git_repo}" if not git_repo.startswith("https://") else git_repo
 
     # read in mwb.yaml template
     with open(templates_dir / 'mwb.yaml','r',encoding='utf-8') as f:
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
-        config_doc['edit_url'] = f"https://{git_repo}/"
-        config_doc['repo'] = f'<a href="https://{git_repo}">{git_repo.split("/")[-1]}</a>'
+        config_doc['edit_url'] = f"{git_repo_url}/"
+        config_doc['repo'] = f'<a href="https://{git_repo_url}">{git_repo.split("/")[-1]}</a>'
 
     # write out configuration information
     output_file = f'{init_dir}/.massivewikibuilder/nxc.yaml'
