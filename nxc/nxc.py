@@ -367,7 +367,7 @@ def init_site(directory):
     init_dir = Path(directory)
     if init_dir.exists():
         # if any(init_dir.iterdir()):
-         if any(glob.iglob(f"{init_dir}/**/.massivewikibuilder/nxc.yaml",recursive=True)):
+         if any(glob.iglob(f"{init_dir}/**/.nxc/nxc.yaml",recursive=True)):
              logging.error(f"The directory {init_dir} has been initialized.")
              return
     else:
@@ -383,18 +383,18 @@ def init_site(directory):
         # copy netlify.toml to the root of the new directory
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
         # copy this-website-themes directory
-        shutil.copytree(templates_dir / "this-website-themes", init_dir / ".massivewikibuilder" / "this-website-themes")
+        shutil.copytree(templates_dir / "this-website-themes", init_dir / ".nxc" / "this-website-themes")
         # copy pip req'ts, javascript, and node info
-        shutil.copy(templates_dir / "requirements.txt", init_dir / ".massivewikibuilder" / "requirements.txt")
-        shutil.copy(templates_dir / "build-index.js", init_dir / ".massivewikibuilder" / "build-index.js")
-        shutil.copy(templates_dir / "package.json", init_dir / ".massivewikibuilder" / "package.json")
-        shutil.copy(templates_dir / "package-lock.json", init_dir / ".massivewikibuilder" / "package-lock.json")
+        shutil.copy(templates_dir / "requirements.txt", init_dir / ".nxc" / "requirements.txt")
+        shutil.copy(templates_dir / "build-index.js", init_dir / ".nxc" / "build-index.js")
+        shutil.copy(templates_dir / "package.json", init_dir / ".nxc" / "package.json")
+        shutil.copy(templates_dir / "package-lock.json", init_dir / ".nxc" / "package-lock.json")
         logging.debug(f"template file copy successful in {init_dir}")
     except Exception as e:
         logging.error(f"Failed to initialize project: {e}")
     
     # initialize configuration file
-    logging.info(f"get and write config info into {init_dir}/.massivewikibuilder/nxc.yaml")
+    logging.info(f"get and write config info into {init_dir}/.nxc/nxc.yaml")
     # get configuration input
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
@@ -410,7 +410,7 @@ def init_site(directory):
         config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
 
     # write out configuration information
-    output_file = f'{init_dir}/.massivewikibuilder/nxc.yaml'
+    output_file = f'{init_dir}/.nxc/nxc.yaml'
     with open(output_file, 'w', encoding='utf-8') as file:
         yaml.safe_dump(config_doc, file, default_flow_style=False, sort_keys=False)
     return
@@ -430,8 +430,8 @@ def main():
     parser_build = subparsers.add_parser('build')
     parser_build.add_argument('-i', '--input', required=True, help='input directory of Markdown files')
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
-    parser_build.add_argument('--config', '-c', default='.massivewikibuilder/nxc.yaml', help='path to YAML config file')
-    parser_build.add_argument('--templates', '-t', default=f'.massivewikibuilder/this-website-themes/dolce', help='directory for HTML templates')
+    parser_build.add_argument('--config', '-c', default='.nxc/nxc.yaml', help='path to YAML config file')
+    parser_build.add_argument('--templates', '-t', default=f'.nxc/this-website-themes/dolce', help='directory for HTML templates')
     parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host Github Pages)')
     parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
