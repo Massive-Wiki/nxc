@@ -402,7 +402,7 @@ def init_site(directory):
     git_repo = f"https://{git_repo}" if not git_repo.startswith("https://") else git_repo
 
     # read in mwb.yaml template
-    with open(templates_dir / 'mwb.yaml','r',encoding='utf-8') as f:
+    with open(templates_dir / 'nxc-template.yaml','r',encoding='utf-8') as f:
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
