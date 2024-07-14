@@ -380,7 +380,9 @@ def init_site(directory):
     templates_dir = script_dir / "templates"
     # Copy files from templates
     try:
-        # copy netlify.toml to the root of the new directory
+        # copy netlify.toml to the root of the new directory; save any existing file
+        if os.path.exists(filename := f"{init_dir}/netlify.toml"):
+            shutil.copy(filename, init_dir / "netlify-prior.toml")
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".nxc" / "this-website-themes")
