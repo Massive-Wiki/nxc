@@ -1,6 +1,6 @@
 [build]
   ignore = "/bin/false"
-  base = ".massivewikibuilder"
+  base = ".nxc"
   publish = "./output"
   command = "nxc build -i .. -o ./output --lunr --commits"
 
