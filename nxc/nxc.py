@@ -406,7 +406,9 @@ def init_site(directory):
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
-        config_doc['edit_url'] = f"{git_repo}/"
+        # TODO: determine edit_url appropriate for the Git Forge
+        #  2024-07-14: this edit_url is for GitHub
+        config_doc['edit_url'] = f"{git_repo}/edit/"
         config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
 
     # write out configuration information
