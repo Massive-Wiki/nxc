@@ -264,7 +264,7 @@ def build_site(args):
                 # get commit message and time
                 if args[0].commits:
                     root = Path(file).parent.as_posix()
-                    p = subprocess.run(["git", "-C", Path(root), "log", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
+                    p = subprocess.run(["git", "-C", Path(root), "log", "main", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
                     (date,author,change)=p.stdout.decode('utf-8')[1:-2].split('\t',2)
                     date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
                 else:
