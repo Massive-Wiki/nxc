@@ -131,7 +131,8 @@ class MassiveWikiRenderer(HTMLRenderer):
                 logging.debug("TRANSCLUDED _tc_dict: %s", self._tc_dict)
                 transclude_path = f"{self._fileroot}{wikilink_value['fs_path']}"
                 logging.debug(f"TRANSCLUDED loading contents of '{transclude_path}'")
-                with open(transclude_path, 'r') as infile: inner = infile.read()
+                with open(transclude_path, 'r') as infile:
+                    inner = infile.read()
                 rendered_doc = self.render(Document(inner))
                 htmlpath = wikilink_value['html_path']
                 template = f'<p><a href="{self._websiteroot}{htmlpath}" style="float:right">🔗</a> {rendered_doc} </p>'

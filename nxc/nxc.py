@@ -15,7 +15,6 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-import sys
 import textwrap
 import time
 import traceback
@@ -79,7 +78,7 @@ def read_markdown_and_front_matter(path):
             count += 1
             if re.match(r'^---$',line):
                 found_front_matter_end = True
-                break;
+                break
         if found_front_matter_end:
             try:
                 front_matter = yaml.safe_load(''.join(lines[1:count]))
@@ -120,7 +119,7 @@ def build_site(args):
 
     # get configuration
     config = load_config(Path(config_file).resolve().as_posix())
-    if not 'recent_changes_count' in config:
+    if 'recent_changes_count' not in config:
         config['recent_changes_count'] = 5
 
     # remember paths
@@ -350,9 +349,9 @@ def build_site(args):
         print(f"\nERROR: '{e.cmd[0]}' returned error code {e.returncode}.")
         print(f"Output was '{e.output}'")
         if e.cmd[0] == 'node':
-            print(f"\nYou may need to install Node modules with 'npm ci'.\n")
+            print("\nYou may need to install Node modules with 'npm ci'.\n")
         if e.cmd[0] == 'git':
-            print(f"\nThere was a problem with Git.\n")
+            print("\nThere was a problem with Git.\n")
     except jinja2.exceptions.TemplateNotFound as e:
         print(f"\nCan't find template '{e}'.\n\nTheme or files in theme appear to be missing, or theme argument set incorrectly.\n")
     except FileNotFoundError as e:
@@ -435,7 +434,7 @@ def main():
     parser_build.add_argument('-i', '--input', required=True, help='input directory of Markdown files')
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
     parser_build.add_argument('--config', '-c', default='.nxc/nxc.yaml', help='path to YAML config file')
-    parser_build.add_argument('--templates', '-t', default=f'.nxc/this-website-themes/dolce', help='directory for HTML templates')
+    parser_build.add_argument('--templates', '-t', default='.nxc/this-website-themes/dolce', help='directory for HTML templates')
     parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host Github Pages)')
     parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
