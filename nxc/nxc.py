@@ -19,9 +19,7 @@ import textwrap
 import time
 import traceback
 from urllib.parse import urlparse
-
-# pip install
-from dateutil.parser import parse # pip install python-dateutil
+from dateutil.parser import parse
 import jinja2
 import yaml
 
