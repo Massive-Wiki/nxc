@@ -255,7 +255,7 @@ def build_site(args):
                                            markdown_body=markdown_body,
                                            backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
                                            edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
-                                           git_forge=urlparse(config['edit_url']).hostname)
+                                           git_forge=urlparse(config['edit_url']).hostname('.')[0])
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
