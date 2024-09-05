@@ -27,7 +27,21 @@ import yaml
 from mistletoe import Document
 from nxc.mistletoe_renderer.massivewiki import MassiveWikiRenderer
 
+# wiki page links, backlinks table
 wiki_pagelinks = {}
+
+# git forge proper name table
+def git_forge_proper_name(git_edit_url):
+    git_forge_names = {
+        'github.com':'GitHub',
+        'codeberg.org':'Codeberg',
+        'gitlab.com':'GitLab'
+    }
+    forge_loc = urlparse(git_edit_url).netloc
+    if (forge_name := git_forge_names.get(forge_loc)) is None:
+        return forge_loc
+    else:
+        return forge_name
 
 def markdown_convert(markdown_text, rootdir, fileroot, file_id, websiteroot):
     with MassiveWikiRenderer(rootdir=rootdir, fileroot=fileroot, wikilinks=wiki_pagelinks, file_id=file_id, websiteroot=websiteroot) as renderer:
@@ -255,7 +269,7 @@ def build_site(args):
                                            markdown_body=markdown_body,
                                            backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
                                            edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
-                                           git_forge=urlparse(config['edit_url']).netloc.split('.')[0])
+                                           git_forge=git_forge_proper_name(config['edit_url']))
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
