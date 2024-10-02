@@ -217,7 +217,6 @@ def build_site(args):
                 
         logging.debug("wiki page links: %s", wiki_pagelinks)
         logging.debug("lunr index length %s: ",len(lunr_idx_data))
-
         # update wiki_pagelinks dictionary with backlinks
         for file in allfiles:
             if Path(file).name == config['sidebar']:  # do not backlink to sidebar
@@ -273,16 +272,18 @@ def build_site(args):
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
+                date = ''
+                change = ''
+                author = ''
                 if args[0].commits:
                     root = Path(file).parent.as_posix()
                     p = subprocess.run(["git", "-C", Path(root), "log", "main", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
-                    logging.info("subprocess result: %s", p.stdout.decode('utf-8'))
-                    (date,author,change)=p.stdout.decode('utf-8')[1:-2].split('\t',2)
-                    date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
-                else:
-                    date = ''
-                    change = ''
-                    author = ''
+                    logging.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
+                    try:
+                        (date, author, change) = p.stdout.decode('utf-8')[1:-2].split('\t', 2)
+                        date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
+                    except Exception as e:
+                        logging.error("Failed to parse git log output: '{p.stdout.decode('utf-8')}'")
 
                 # remember this page for All Pages
                 # strip Markdown headers and add truncated content (used for recent_pages)
