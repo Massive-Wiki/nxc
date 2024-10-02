@@ -283,7 +283,7 @@ def build_site(args):
                         (date, author, change) = p.stdout.decode('utf-8')[1:-2].split('\t', 2)
                         date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
                     except Exception as e:
-                        logging.error("Failed to parse git log output: '{p.stdout.decode('utf-8')}'")
+                        logging.error(f"Failed to parse git log output: '{p.stdout.decode('utf-8')}'")
 
                 # remember this page for All Pages
                 # strip Markdown headers and add truncated content (used for recent_pages)
