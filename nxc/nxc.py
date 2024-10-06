@@ -277,7 +277,8 @@ def build_site(args):
                 author = ''
                 if args[0].commits:
                     root = Path(file).parent.as_posix()
-                    p = subprocess.run(["git", "-C", Path(root), "log", "main", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
+#                    p = subprocess.run(["git", "-C", Path(root), "log", "main", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
+                    p = subprocess.run(["git", "-C", Path(root), "log", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
                     logging.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
                     try:
                         (date, author, change) = p.stdout.decode('utf-8')[1:-2].split('\t', 2)
