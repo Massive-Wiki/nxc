@@ -461,6 +461,11 @@ def main():
         logging.info('Initializing in directory: %s', {args[0].directory[0]})
         init_site(args[0].directory[0])
     elif args[0].cmd == 'build':
+        # do not build if input directory is not initialized
+        if not os.path.isfile(f"{args[0].input}/.nxc/nxc.yaml"):
+            logging.warning("Have you run `nxc init` yet?")
+            logging.error(f"{args[0].input} does not appear to initialized. Run `nxc init -h` for instructions.")
+            return
         logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
         build_site(args)
     else:
