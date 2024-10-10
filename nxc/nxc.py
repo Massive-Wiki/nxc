@@ -277,13 +277,13 @@ def build_site(args):
                 author = ''
                 if args[0].commits:
                     root = Path(file).parent.as_posix()
-                    p = subprocess.run(["git", "-C", Path(root), "log", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
-                    logging.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
                     try:
+                        p = subprocess.run(["git", "-C", Path(root), "log", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
+                        logging.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
                         (date, author, change) = p.stdout.decode('utf-8')[1:-2].split('\t', 2)
                         date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
                     except Exception as e:
-                        logging.error(f"Failed to parse git log output: '{p.stdout.decode('utf-8')}' for file: {Path(file).name}")
+                        logging.error(f"git log subprocess error: {e}")
 
                 # remember this page for All Pages
                 # strip Markdown headers and add truncated content (used for recent_pages)
