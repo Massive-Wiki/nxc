@@ -7,13 +7,25 @@ logging.basicConfig(level=os.environ.get('LOGLEVEL', 'WARNING').upper())
 
 from itertools import chain
 from mistletoe import Document
+from mistletoe.block_token import BlockToken
 from mistletoe.span_token import SpanToken
 from mistletoe.html_renderer import HTMLRenderer
 from pathlib import Path
 import html
 import re
 
-__all__ = ['DoubleSquareBracketLink', 'EmbeddedImageDoubleSquareBracketLink', 'TranscludedDoubleSquareBracketLink', 'MassiveWikiRenderer']
+__all__ = ['RawHtml', 'DoubleSquareBracketLink', 'EmbeddedImageDoubleSquareBracketLink', 'TranscludedDoubleSquareBracketLink', 'MassiveWikiRenderer']
+
+class RawHtml(BlockToken):
+    pattern = re.compile(r'\{\< ([^>]*) \>\}')
+
+    def __init__(self, match):
+        logging.debug(f"RAWHTML match: {match}")
+        self.target = match
+
+    @staticmethod
+    def start(line):
+        return RawHtml.pattern.match(line) is not None
 
 class DoubleSquareBracketLink(SpanToken):
     """
@@ -52,7 +64,7 @@ class TranscludedDoubleSquareBracketLink(SpanToken):
 
 class MassiveWikiRenderer(HTMLRenderer):
     """
-    Extends HTMLRenderer to handle double square bracket links.
+    Extends HTMLRenderer to handle wiki-links, images, transclusion, and raw html
 
     Args:
         rootdir (string): directory path to prepend to all links, defaults to '/'.
@@ -62,7 +74,7 @@ class MassiveWikiRenderer(HTMLRenderer):
         links (array of strings, read-only): all of the double square bracket link targets found in this invocation.
     """
     def __init__(self, rootdir='/', fileroot='.', wikilinks={}, file_id='', websiteroot=''):
-        super().__init__(*chain([TranscludedDoubleSquareBracketLink,EmbeddedImageDoubleSquareBracketLink,DoubleSquareBracketLink]))
+        super().__init__(*chain([RawHtml,TranscludedDoubleSquareBracketLink,EmbeddedImageDoubleSquareBracketLink,DoubleSquareBracketLink]))
         self._rootdir = rootdir
         self._fileroot = fileroot
         self._wikilinks = wikilinks
@@ -70,6 +82,22 @@ class MassiveWikiRenderer(HTMLRenderer):
         self._tc_dict = dict.fromkeys([self._file_id], [])
         self._tc_dict[self._file_id].append(self._file_id)
         self._websiteroot = websiteroot
+
+    def render_raw_html(self, token):
+        logging.debug(f"RAWHTML token: {token}")
+        logging.debug(f"RAWHTML token target: {token.target}")
+        if len(token.target) == 1:
+            target = token.target[0].replace('{< ','<').replace(' >}\n','>')
+        elif len(token.target) >= 3:
+            tag_start = token.target[0].replace('{< ','<').replace(' >}','>')
+            tag_end = token.target[-1].replace('{< ','<').replace(' >}\n','>')
+            logging.debug(f"RAWHTML between_tags: {''.join(token.target[1:-1])}")
+            between_tags = self.render(Document(''.join(token.target[1:-1])))
+            target = f"{tag_start}{between_tags}{tag_end}"
+        else:
+            target = token.target
+        template = '{target}'
+        return template.format(target=target)
 
     def render_double_square_bracket_link(self, token):
         logging.debug("WIKILINKED token: %s", token)
@@ -139,4 +167,3 @@ class MassiveWikiRenderer(HTMLRenderer):
         else:
             template = '<p><span class="transclusion-error">TRANSCLUSION {target} NOT FOUND</span></p>'
         return template.format(target=target, inner=inner, rootdir=self._rootdir)
-
