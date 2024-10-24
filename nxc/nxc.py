@@ -55,7 +55,6 @@ def markdown_convert(markdown_text, rootdir, fileroot, file_id, websiteroot):
 def jinja2_environment(path_to_templates):
     return jinja2.Environment(
         loader=jinja2.FileSystemLoader(path_to_templates),
-        autoescape=True
     )
 
 # load config file
