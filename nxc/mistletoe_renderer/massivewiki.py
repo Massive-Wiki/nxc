@@ -2,8 +2,8 @@
 Massive Wiki support for mistletoe.
 """
 # set up logging
-import logging, os
-logging.basicConfig(level=os.environ.get('LOGLEVEL', 'WARNING').upper())
+import logging
+logger = logging.getLogger('nxc.massivewiki')
 
 from itertools import chain
 from mistletoe import Document
@@ -20,7 +20,7 @@ class RawHtml(BlockToken):
     pattern = re.compile(r'\{\< ([^>]*) \>\}')
 
     def __init__(self, match):
-        logging.debug(f"RAWHTML match: {match}")
+        logger.debug(f"RAWHTML match: {match}")
         self.target = match
 
     @staticmethod
@@ -84,14 +84,14 @@ class MassiveWikiRenderer(HTMLRenderer):
         self._websiteroot = websiteroot
 
     def render_raw_html(self, token):
-        logging.debug(f"RAWHTML token: {token}")
-        logging.debug(f"RAWHTML token target: {token.target}")
+        logger.debug(f"RAWHTML token: {token}")
+        logger.debug(f"RAWHTML token target: {token.target}")
         if len(token.target) == 1:
             target = token.target[0].replace('{< ','<').replace(' >}\n','>')
         elif len(token.target) >= 3:
             tag_start = token.target[0].replace('{< ','<').replace(' >}','>')
             tag_end = token.target[-1].replace('{< ','<').replace(' >}\n','>')
-            logging.debug(f"RAWHTML between_tags: {''.join(token.target[1:-1])}")
+            logger.debug(f"RAWHTML between_tags: {''.join(token.target[1:-1])}")
             between_tags = self.render(Document(''.join(token.target[1:-1])))
             target = f"{tag_start}{between_tags}{tag_end}"
         else:
@@ -100,65 +100,65 @@ class MassiveWikiRenderer(HTMLRenderer):
         return template.format(target=target)
 
     def render_double_square_bracket_link(self, token):
-        logging.debug("WIKILINKED token: %s", token)
+        logger.debug("WIKILINKED token: %s", token)
         target = token.target
-        logging.debug("WIKILINKED token.target: %s", token.target)
-        logging.debug("WIKILINKED inner(token): %s", self.render_inner(token))
+        logger.debug("WIKILINKED token.target: %s", token.target)
+        logger.debug("WIKILINKED inner(token): %s", self.render_inner(token))
         wikilink_key = html.unescape(Path(self.render_inner(token)).name).lower()
-        logging.debug("WIKILINKED wikilink_key: %s", wikilink_key)
+        logger.debug("WIKILINKED wikilink_key: %s", wikilink_key)
         wikilink_value = self._wikilinks.get(wikilink_key, None)
-        logging.debug("WIKILINKED wikilink_value: %s", wikilink_value)
+        logger.debug("WIKILINKED wikilink_value: %s", wikilink_value)
         if wikilink_value:
             inner = Path(wikilink_value['html_path']).relative_to(self._rootdir).as_posix()
             template = '<a class="wikilink" href="{websiteroot}{rootdir}{inner}">{target}</a>'
         else:
             inner = self.render_inner(token)
             template = '<span class="incipient-wikilink">{target}</span>'
-        logging.debug("WIKILINKED inner: %s", inner)
+        logger.debug("WIKILINKED inner: %s", inner)
         return template.format(target=target, inner=inner, rootdir=self._rootdir, websiteroot=self._websiteroot)
 
     def render_embedded_image_double_square_bracket_link(self, token):
-        logging.debug("EMBEDDED token: %s", token)
+        logger.debug("EMBEDDED token: %s", token)
         template = '<img src="{websiteroot}{rootdir}{inner}" alt="{target}" />'
         target = token.target
         if not target:
             target = "an image with no alt text"
-        logging.debug("EMBEDDED token.target: %s", token.target)
-        logging.debug("EMBEDDED token.content: %s", token.content)
-        logging.debug("EMBEDDED inner(token): %s", self.render_inner(token))
+        logger.debug("EMBEDDED token.target: %s", token.target)
+        logger.debug("EMBEDDED token.content: %s", token.content)
+        logger.debug("EMBEDDED inner(token): %s", self.render_inner(token))
         wikilink_key = token.content.lower()
         wikilink_value = self._wikilinks.get(wikilink_key, None)
-        logging.debug("EMBEDDED wikilink_key: %s", wikilink_key)
-        logging.debug("EMBEDDED wikilink_value: %s", wikilink_value)
+        logger.debug("EMBEDDED wikilink_key: %s", wikilink_key)
+        logger.debug("EMBEDDED wikilink_value: %s", wikilink_value)
         if wikilink_value:
             inner = Path(wikilink_value['html_path']).relative_to(self._rootdir).as_posix()
         else:
             inner = token.content
-        logging.debug("EMBEDDED inner: %s", inner)
+        logger.debug("EMBEDDED inner: %s", inner)
         return template.format(target=target, inner=inner, rootdir=self._rootdir, websiteroot=self._websiteroot)
 
     def render_transcluded_double_square_bracket_link(self, token):
-        logging.debug("TRANSCLUDED file_id: %s", self._file_id)
-        logging.debug("TRANSCLUDED fileroot: %s", self._fileroot)        
-        logging.debug("TRANSCLUDED token: %s", token)
+        logger.debug("TRANSCLUDED file_id: %s", self._file_id)
+        logger.debug("TRANSCLUDED fileroot: %s", self._fileroot)        
+        logger.debug("TRANSCLUDED token: %s", token)
         target = token.target
-        logging.debug("TRANSCLUDED token.target: %s", token.target)
+        logger.debug("TRANSCLUDED token.target: %s", token.target)
         inner = self.render_inner(token)
-        logging.debug("TRANSCLUDED inner(token): %s", self.render_inner(token))
+        logger.debug("TRANSCLUDED inner(token): %s", self.render_inner(token))
         wikilink_key = html.unescape(Path(self.render_inner(token)).name).lower()
-        logging.debug("TRANSCLUDED wikilink_key: %s", wikilink_key)
+        logger.debug("TRANSCLUDED wikilink_key: %s", wikilink_key)
         wikilink_value = self._wikilinks.get(wikilink_key, None)
-        logging.debug("TRANSCLUDED wikilink_value: %s", wikilink_value)
+        logger.debug("TRANSCLUDED wikilink_value: %s", wikilink_value)
         if wikilink_value:
-            logging.debug("TRANSCLUDED wikipage_id: %s", wikilink_value['wikipage_id'])
+            logger.debug("TRANSCLUDED wikipage_id: %s", wikilink_value['wikipage_id'])
             if any(wikilink_value['wikipage_id'] in x for x in self._tc_dict[self._file_id]):
-                logging.debug("*** ruh roh! there is a transclude loop")
+                logger.debug("*** ruh roh! there is a transclude loop")
                 template = '<p><span class="transclusion-error">Cannot transclude <strong>{inner}</strong> within itself.</span></p>'
             else:
                 self._tc_dict[self._file_id].append(wikilink_value['wikipage_id'])
-                logging.debug("TRANSCLUDED _tc_dict: %s", self._tc_dict)
+                logger.debug("TRANSCLUDED _tc_dict: %s", self._tc_dict)
                 transclude_path = f"{self._fileroot}{wikilink_value['fs_path']}"
-                logging.debug(f"TRANSCLUDED loading contents of '{transclude_path}'")
+                logger.debug(f"TRANSCLUDED loading contents of '{transclude_path}'")
                 with open(transclude_path, 'r') as infile:
                     inner = infile.read()
                 rendered_doc = self.render(Document(inner))

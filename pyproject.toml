@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "nxc"
-version = "0.2.5"
+version = "0.2.6"
 description = "Initialize and build (web publish) Massive Wiki sites."
 authors = [
   "Bill Anderson <band@acm.org>",

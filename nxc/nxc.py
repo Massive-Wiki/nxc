@@ -3,14 +3,23 @@
 APPVERSION = 'v4.0.0-candidate'
 APPNAME = 'Massive Web Builder'
 
+# setup logging
+import logging, os
+log_level = os.environ.get('LOGLEVEL', 'WARNING').upper()
+
+logging.basicConfig(
+    level=getattr(logging, log_level, 'WARNING'),
+    format="%(asctime)s - %(name)s - %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger('nxc')
+
 # python libraries
 import argparse
 import datetime
 import glob
 import hashlib
 import json
-import logging
-import os
 from pathlib import Path
 import re
 import shutil
@@ -118,16 +127,16 @@ def datetime_date_serializer(o):
 
 # build website
 def build_site(args):
-    logging.debug("Building ....")
+    logger.debug("Building ....")
     input_dir = args[0].input
     output_dir = args[0].output
-    logging.info(f"build website in {output_dir} from Markdown files in {input_dir}")
+    logger.info(f"build website in {output_dir} from Markdown files in {input_dir}")
     config_file = f"{input_dir}/{args[0].config}"
-    logging.info(f"using config file: {config_file}")
+    logger.info(f"using config file: {config_file}")
     templates_dir = f"{input_dir}/{args[0].templates}"
-    logging.info(f"using website theme templates: {templates_dir}")
+    logger.info(f"using website theme templates: {templates_dir}")
     
-    logging.info("args: %s", args)
+    logger.info("args: %s", args)
 
     # get configuration
     config = load_config(Path(config_file).resolve().as_posix())
@@ -137,7 +146,7 @@ def build_site(args):
     # remember paths
     dir_output = Path(args[0].output).resolve().as_posix()
     dir_templates = Path(templates_dir).resolve().as_posix()
-    logging.info(f"dir_templates :{dir_templates}")
+    logger.info(f"dir_templates :{dir_templates}")
     dir_wiki = Path(args[0].input).resolve().as_posix()
     rootdir = '/'
     websiteroot = args[0].root
@@ -179,7 +188,7 @@ def build_site(args):
     # render the wiki
     try:
         # remove existing output directory and recreate
-        logging.debug("remove existing output directory and recreate")
+        logger.debug("remove existing output directory and recreate")
         shutil.rmtree(dir_output, ignore_errors=True)
         os.mkdir(dir_output)
         
@@ -194,13 +203,13 @@ def build_site(args):
         lunr_idx_data=[]
         lunr_posts=[]
         for file in allfiles:
-            logging.debug("file %s: ", file)
+            logger.debug("file %s: ", file)
             fs_path = rootdir+Path(file).relative_to(dir_wiki).as_posix()
             clean_filepath = scrub_path(fs_path)
             if Path(file).suffix == '.md':
-                logging.debug("key: %s", Path(file).name)
+                logger.debug("key: %s", Path(file).name)
                 html_path = Path(clean_filepath).with_suffix(".html").as_posix()
-                logging.debug("html path: %s", html_path)
+                logger.debug("html path: %s", html_path)
                 # add filesystem path, html path, backlinks list, wikipage-id to wiki_path_links dictionary
                 wikipage_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
                 wiki_pagelinks[Path(file).stem.lower()] = {'fs_path':fs_path, 'html_path':html_path, 'backlinks':[], 'wikipage_id':wikipage_id}
@@ -211,14 +220,14 @@ def build_site(args):
                     lunr_idx_data.append({"link":link, "title":title, "body": Path(file).read_text(encoding='utf-8')})
                     lunr_posts.append({"link":link, "title":title})
             else:
-                logging.debug("key: %s", Path(file).name)
+                logger.debug("key: %s", Path(file).name)
                 html_path = clean_filepath
-                logging.debug("html path: %s", html_path)
+                logger.debug("html path: %s", html_path)
                 # add html path and backlinks list to wiki_pagelinks dict
                 wiki_pagelinks[Path(file).name.lower()] = {'fs_path':fs_path, 'html_path':html_path, 'backlinks':[]}
                 
-        logging.debug("wiki page links: %s", wiki_pagelinks)
-        logging.debug("lunr index length %s: ",len(lunr_idx_data))
+        logger.debug("wiki page links: %s", wiki_pagelinks)
+        logger.debug("lunr index length %s: ",len(lunr_idx_data))
         # update wiki_pagelinks dictionary with backlinks
         for file in allfiles:
             if Path(file).name == config['sidebar']:  # do not backlink to sidebar
@@ -226,14 +235,14 @@ def build_site(args):
             if Path(file).suffix == '.md':
                 to_links = find_tolinks(file)
                 for page in to_links:
-                    logging.info("on page %s add backlink to page %s", Path(page).name, wiki_pagelinks[Path(file).stem.lower()]['html_path'])
+                    logger.info("on page %s add backlink to page %s", Path(page).name, wiki_pagelinks[Path(file).stem.lower()]['html_path'])
                     if ( Path(page).name.lower() in wiki_pagelinks and
                          not any(wiki_pagelinks[Path(file).stem.lower()]['html_path'] in t for t in wiki_pagelinks[Path(page).name.lower()]['backlinks']) ):
                         backlink_tuple = (wiki_pagelinks[Path(file).stem.lower()]['html_path'],Path(file).stem)
                         wiki_pagelinks[Path(page).name.lower()]['backlinks'].append(backlink_tuple)
 
         # render all the Markdown files
-        logging.debug("copy wiki to output; render .md files to HTML")
+        logger.debug("copy wiki to output; render .md files to HTML")
         all_pages = []
         build_time = datetime.datetime.now(datetime.timezone.utc).strftime("%A, %B %d, %Y at %H:%M UTC")
 
@@ -247,7 +256,7 @@ def build_site(args):
             # make needed subdirectories
             os.makedirs(Path(dir_output+clean_filepath).parent, exist_ok=True)
             if Path(file).suffix == '.md':
-                logging.info("Rendering %s", file)
+                logger.info("Rendering %s", file)
                 # parse Markdown file
                 markdown_text, front_matter = read_markdown_and_front_matter(Path(file))
                 if front_matter is False:
@@ -281,11 +290,11 @@ def build_site(args):
                     root = Path(file).parent.as_posix()
                     try:
                         p = subprocess.run(["git", "-C", Path(root), "log", "-1", '--pretty="%cI\t%an\t%s"', Path(file).name], capture_output=True, check=True)
-                        logging.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
+                        logger.debug(f"subprocess result: '{p.stdout.decode('utf-8')}'")
                         (date, author, change) = p.stdout.decode('utf-8')[1:-2].split('\t', 2)
                         date = parse(date).astimezone(datetime.timezone.utc).strftime("%Y-%m-%d, %H:%M")
                     except Exception as e:
-                        logging.error(f"git log subprocess error: {e}")
+                        logger.error(f"git log subprocess error: {e}")
 
                 # remember this page for All Pages
                 # strip Markdown headers and add truncated content (used for recent_pages)
@@ -307,13 +316,13 @@ def build_site(args):
                 }
                 json.dump(build_results, outfile)
             # copy all original files
-            logging.debug("Copy all original files")
-            logging.debug("%s -->  %s",Path(file), Path(dir_output+clean_filepath))
+            logger.debug("Copy all original files")
+            logger.debug("%s -->  %s",Path(file), Path(dir_output+clean_filepath))
             shutil.copy(Path(file), Path(dir_output+clean_filepath))
 
         # build Lunr search index if --lunr
         if (args[0].lunr):
-            logging.debug("building lunr index: %s", lunr_index_filepath)
+            logger.debug("building lunr index: %s", lunr_index_filepath)
             # ref: https://lunrjs.com/guides/index_prebuilding.html
             pages_index_bytes = json.dumps(lunr_idx_data).encode('utf-8') # NOTE: build-index.js requires text as input - convert dict to string (then do encoding to bytes either here or set `encoding` in subprocess.run())
             with open(lunr_index_filepath, "w") as outfile:
@@ -327,20 +336,20 @@ def build_site(args):
         (Path(dir_output) / "search.html").write_text(html)
 
         # copy README.html to index.html if no index.html
-        logging.debug("copy README.html to index.html if no index.html")
+        logger.debug("copy README.html to index.html if no index.html")
         if not os.path.exists(Path(dir_output) / 'index.html'):
             shutil.copyfile(Path(dir_output) / 'README.html', Path(dir_output) / 'index.html')
 
         # copy static assets directory
-        logging.debug("copy static assets directory")
+        logger.debug("copy static assets directory")
         if os.path.exists(Path(dir_templates) / 'mwb-static'):
-            logging.warning("mwb-static is deprecated. please use 'static', and put mwb-static inside static - see docs")
+            logger.warning("mwb-static is deprecated. please use 'static', and put mwb-static inside static - see docs")
             shutil.copytree(Path(dir_templates) / 'mwb-static', Path(dir_output) / 'mwb-static')
         if os.path.exists(Path(dir_templates) / 'static'):
             shutil.copytree(Path(dir_templates) / 'static', Path(dir_output), dirs_exist_ok=True)
 
         # build all-pages.html
-        logging.debug("build all-pages.html")
+        logger.debug("build all-pages.html")
         if args[0].commits:
             all_pages_chrono = sorted(all_pages, key=lambda i: i['date'], reverse=True)
         else:
@@ -352,14 +361,14 @@ def build_site(args):
         (Path(dir_output) / "all-pages.html").write_text(html)
 
         # build recent-pages.html
-        logging.debug(f"build recent-pages.html with {config['recent_changes_count']} entries.")
+        logger.debug(f"build recent-pages.html with {config['recent_changes_count']} entries.")
         recent_pages = all_pages_chrono[:config['recent_changes_count']]
         html = render_template('recent-pages.html',
                                pages=recent_pages)
         (Path(dir_output) / "recent-pages.html").write_text(html)
 
         # done
-        logging.debug("done")
+        logger.debug("done")
 
     except subprocess.CalledProcessError as e:
         print(f"\nERROR: '{e.cmd[0]}' returned error code {e.returncode}.")
@@ -383,11 +392,11 @@ def init_site(directory):
     if init_dir.exists():
         # if any(init_dir.iterdir()):
          if any(glob.iglob(f"{init_dir}/**/.nxc/nxc.yaml",recursive=True)):
-             logging.error(f"The directory {init_dir} has been initialized.")
+             logger.error(f"The directory {init_dir} has been initialized.")
              return
     else:
         # create and initialize directory
-        logging.info(f"Creating directory {init_dir}")
+        logger.info(f"Creating directory {init_dir}")
         os.makedirs(init_dir)
         
     # Define the source template directory
@@ -406,12 +415,12 @@ def init_site(directory):
         shutil.copy(templates_dir / "build-index.js", init_dir / ".nxc" / "build-index.js")
         shutil.copy(templates_dir / "package.json", init_dir / ".nxc" / "package.json")
         shutil.copy(templates_dir / "package-lock.json", init_dir / ".nxc" / "package-lock.json")
-        logging.debug(f"template file copy successful in {init_dir}")
+        logger.debug(f"template file copy successful in {init_dir}")
     except Exception as e:
-        logging.error(f"Failed to initialize project: {e}")
+        logger.error(f"Failed to initialize project: {e}")
     
     # initialize configuration file
-    logging.info(f"get and write config info into {init_dir}/.nxc/nxc.yaml")
+    logger.info(f"get and write config info into {init_dir}/.nxc/nxc.yaml")
     # get configuration input
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
@@ -435,9 +444,6 @@ def init_site(directory):
     return
 
 def main():
-    # setup logger
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-    
     # setup argument parsers
     parser = argparse.ArgumentParser(description='Initialize or build website for a collection of Markdown files.')
     subparsers = parser.add_subparsers(required=True)
@@ -457,18 +463,18 @@ def main():
     parser_build.set_defaults(cmd='build')
     
     args = parser.parse_known_args()
-    logging.info(args)
+    logger.info(args)
 
     if args[0].cmd == 'init':
-        logging.info('Initializing in directory: %s', {args[0].directory[0]})
+        logger.info('Initializing in directory: %s', {args[0].directory[0]})
         init_site(args[0].directory[0])
     elif args[0].cmd == 'build':
         # do not build if input directory is not initialized
         if not os.path.isfile(f"{args[0].input}/.nxc/nxc.yaml"):
-            logging.warning("Have you run `nxc init` yet?")
-            logging.error(f"{args[0].input} does not appear to initialized. Run `nxc init -h` for instructions.")
+            logger.warning("Have you run `nxc init` yet?")
+            logger.error(f"{args[0].input} does not appear to initialized. Run `nxc init -h` for instructions.")
             return
-        logging.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
+        logger.info(f'building website in directory {args[0].output} from Markdown files in {args[0].input}')
         build_site(args)
     else:
         return
