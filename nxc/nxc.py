@@ -9,7 +9,7 @@ log_level = os.environ.get('LOGLEVEL', 'WARNING').upper()
 
 logging.basicConfig(
     level=getattr(logging, log_level, 'WARNING'),
-    format="%(asctime)s - %(name)s - %(levelname)s: %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)s: %(filename)s:%(lineno)d - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger('nxc')
