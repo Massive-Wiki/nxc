@@ -97,19 +97,32 @@ $ cd nxcinstall
 $ python3 -m venv venv
 $ source venv/bin/activate
 (venv) $ pip install --upgrade pip
-# AHA, how to bootstrap the requirements.txt file?
-(venv) $ pip install -r requirements.txt
+(venv) $ pip install nxc
 ```
 
 `nxc` is now installed and can be invoked in the `nxcinstall`  directory Terminal app:
 ```shell
-(venv) $ nxc
+(venv) $ nxc -h
 ```
 
-(not yet completed)
-(remember to `pip install -r requirements.txt`)
+`nxc` provides two operations:
+1. initialization of a new empty directory or a directory containing Markdown files; and
+2. building a static website from an initialized directory
 
-(clone massive-wiki-themes repo, call it massive-wiki-themes)
+## Initialization
+
+```shell
+(venv) $ nxc init directory-name
+```
+
+If `./directory-name` does not exist it is created and populated with the NXC default required software. If there is a directory of that name in the current directory, then the NXC required files are installed there.
+
+Initialization requests website information on the Terminal command line; viz.:
+```shell
+Enter the website title:   # the title at the top of every webpage
+Enter the author name(s): # name(s) shown in page footer
+Enter Git repository url: # e.g., github.com/band/directory-name
+```
 
 ## Build
 
