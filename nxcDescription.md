@@ -92,23 +92,19 @@ Side note about favicon files; it is suggested to use a favicon generator such a
 
 One way to install `nxc` is from a directory created just for that purpose. This is done using a Terminal application that supports a `bash` or `zsh` shell. The steps require an installation of Python version 3.8 or newer, and include:  
 ```shell
-mkdir nxcinstall
-cd nxcinstall
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-# aha, how to bootstrap the requirements.txt file?
-pip install -r requirements.txt
+$ mkdir nxcinstall
+$ cd nxcinstall
+$ python3 -m venv venv
+$ source venv/bin/activate
+(venv) $ pip install --upgrade pip
+# AHA, how to bootstrap the requirements.txt file?
+(venv) $ pip install -r requirements.txt
 ```
 
 `nxc` is now installed and can be invoked in the `nxcinstall`  directory Terminal app:
 ```shell
 (venv) $ nxc
 ```
-
-
-- make a directory
-
 
 (not yet completed)
 (remember to `pip install -r requirements.txt`)
@@ -128,14 +124,14 @@ If you want to print a log what's happening during the build, set the `LOGLEVEL`
 On the command line, do:
 
 ```shell
-LOGLEVEL=DEBUG ./mwb.py -c mwb.yaml -w .. -o output -t massive-wiki-themes/alto
+LOGLEVEL=DEBUG nxc -i .. -o output --lunr --commits
 ```
 
 or:
 
 ```shell
 export LOGLEVEL=DEBUG
-./mwb.py -c mwb.yaml -w .. -o output -t massive-wiki-themes/alto
+nxc -i .. -o output --lunr --commits
 ```
 
 In `netlify.toml`, do:
@@ -223,10 +219,9 @@ For Netlify deploys, you can include a `netlify.toml` file like this at the root
 ```toml
 [build]
   ignore = "/bin/false"
-  base = ".massivewikibuilder"
+  base = ".nxc"
   publish = "output"
-  command = "./mwb.py -c mwb.yaml -w ../.. -o ../output -t ../massive-wiki-themes/alto"
-
+  command = "nxc -i ../.. -o ../output --lunr --commits
 [build.environment]
   PYTHON_VERSION = "3.8"
 ```
