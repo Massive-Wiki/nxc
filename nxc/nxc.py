@@ -424,18 +424,22 @@ def init_site(directory):
     # get configuration input
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
-    git_repo = input("Enter Git repository url: ")
+    git_repo = input("Enter Git repository url (for Edit button; optional): ")
     git_repo = f"https://{git_repo}" if not git_repo.startswith("https://") else git_repo
 
-    # read in mwb.yaml template
+    # read in nxc.yaml template
     with open(templates_dir / 'nxc-template.yaml','r',encoding='utf-8') as f:
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
         # TODO: determine edit_url appropriate for the Git Forge
         #  2024-07-14: this edit_url is for GitHub
-        config_doc['edit_url'] = f"{git_repo}/edit/"
-        config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
+        if git_repo:
+            config_doc['edit_url'] = f"{git_repo}/edit/"
+            config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
+        else:
+            config_doc['edit_url'] = ''
+            config_doc['repo'] = ''
 
     # write out configuration information
     output_file = f'{init_dir}/.nxc/nxc.yaml'
