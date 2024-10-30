@@ -131,10 +131,8 @@ def build_site(args):
     input_dir = args[0].input
     output_dir = args[0].output
     logger.info(f"build website in {output_dir} from Markdown files in {input_dir}")
-#    config_file = f"{input_dir}/{args[0].config}"
     config_file = Path(args[0].config).absolute().as_posix()
     logger.info(f"using config file: {config_file}")
-#    templates_dir = f"{input_dir}/{args[0].templates}"
     templates_dir = Path(args[0].templates).absolute().as_posix()
     logger.info(f"using website theme templates: {templates_dir}")
     
@@ -457,8 +455,6 @@ def main():
     parser_build = subparsers.add_parser('build')
     parser_build.add_argument('-i', '--input', required=True, help='input directory of Markdown files')
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
-#    parser_build.add_argument('--config', '-c', default='.nxc/nxc.yaml', help='path to YAML config file')
-#    parser_build.add_argument('--templates', '-t', default='.nxc/this-website-themes/dolce', help='directory for HTML templates')
     parser_build.add_argument('--config', '-c', default='./nxc.yaml', help='path to YAML config file')
     parser_build.add_argument('--templates', '-t', default='./this-website-themes/dolce', help='directory for HTML templates')    
     parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host Github Pages)')
