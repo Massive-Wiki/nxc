@@ -1,10 +1,10 @@
 # nxc 
 
-**nxc** is a Python package that is a static site generator for turning collections of Markdown documents[Massive Wikis] into static HTML websites.
+**nxc** is a static site generator for turning collections of Markdown documents into static HTML websites. It is implemented as a Python package.
 
-**nxc** supports wiki-links (and back links), transclusion, full-text search, as well as standard Markdown features. There is no required organization of the markdown files in the document collection directory. Initialization of a document collection installs a basic website theme that can be altered or replaced.
+**nxc** supports wiki links and back links, transclusion, full-text search, as well as standard Markdown features. There is no required organization of the markdown files in the document collection directory or subdirectories. Using **nxc** to initialize a document collection installs a basic website theme that can be altered or replaced.
 
-For document collections that are managed on a GitForge, the generated website can display a table of all pages in the collection that can be sorted by name or time of most recent change.
+For document collections that are versioned with Git, the generated website can display a table of all pages in the collection that can be sorted by file name or time of most recent change.
 
 ## Typical Installation Hierarchy
 
@@ -55,8 +55,6 @@ this-website-themes
 
 ## Static Files
 
-Note: Prior to v1.9.0, MWB handled static files slightly differently. If `mwb-static` existed, it copied it from the theme directory to the output directory. Starting with v1.9.0, it will still do this, but it will output a warning, `WARNING:root:WARNING:root:mwb-static is deprecated, please use 'static'`. The warning is meant to suggest that you should move `mwb-static` into the `static` directory at the top level of the theme.  `static` is described below.
-
 After the HTML pages are built from the Markdown files, if a directory named `static` exists at the top level of the theme, all the files and directories within it are copied to the root of the output directory.  By convention, static files such as CSS, JavaScript, and images are put in a directory inside `static` called `mwb-static`. Favicon files and other files that should be at the root of the website are put at the root of `static`.
 
 The name `static` is used in the theme because it is descriptive, and will not collide with anything in the wiki. (The _content_ of `static` is copied, but not `static` itself.)
@@ -90,26 +88,42 @@ Side note about favicon files; it is suggested to use a favicon generator such a
 
 ## Install
 
-One way to install `nxc` is from a directory created just for that purpose. This is done using a Terminal application that supports a `bash` or `zsh` shell. The steps require an installation of Python version 3.8 or newer, and include:  
+You can install `nxc` globally or in a virtual environment.
+
+Global install:
+
 ```shell
-$ mkdir nxcinstall
-$ cd nxcinstall
-$ python3 -m venv venv
-$ source venv/bin/activate
-(venv) $ pip install --upgrade pip
-(venv) $ pip install nxc
+pip3 install nxc
 ```
 
-`nxc` is now installed and can be invoked in the `nxcinstall`  directory Terminal app:
+Virtual environment creation and installation:
+
 ```shell
-(venv) $ nxc -h
+mkdir my-new-website
+cd my-new-website
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install nxc
+# TODO: add instructions to run nxc to init this directory (after testing)
 ```
+
+## Running nxc
 
 `nxc` provides two operations:
+
 1. initialization of a new empty directory or a directory containing Markdown files; and
 2. building a static website from an initialized directory
 
-## Initialization
+You can get help with `nxc` with the `-h` or `--help` flag:
+
+```shell
+nxc -h
+```
+
+
+
+### Initialization
 
 ```shell
 (venv) $ nxc init directory-name
@@ -119,12 +133,12 @@ If `./directory-name` does not exist it is created and populated with the NXC de
 
 Initialization requests website information on the Terminal command line; viz.:
 ```shell
-Enter the website title:   # the title at the top of every webpage
+Enter the website title: # the title at the top of every webpage
 Enter the author name(s): # name(s) shown in page footer
-Enter Git repository url: # e.g., github.com/band/directory-name
+Enter Git repository url (for Edit button; optional): # e.g., github.com/band/directory-name
 ```
 
-## Build
+### Build
 
 In `.nxc/`:
 
