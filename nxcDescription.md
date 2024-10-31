@@ -122,14 +122,13 @@ nxc -h
 ```
 
 
-
 ### Initialization
 
 ```shell
-(venv) $ nxc init directory-name
+nxc init directory-name
 ```
 
-If `./directory-name` does not exist it is created and populated with the NXC default required software. If there is a directory of that name in the current directory, then the NXC required files are installed there.
+If `./directory-name` does not exist, it is created and populated with the NXC default software. If there is a directory of that name in the current directory, then the NXC files are installed there.
 
 Initialization requests website information on the Terminal command line; viz.:
 ```shell
