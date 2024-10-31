@@ -171,6 +171,36 @@ def build_site(args):
         render_args = {**common_args, **kwargs}
         return j.get_template(template_name).render(**render_args)
 
+    # set context for page template rendering
+    def get_page_context(file, markdown_body, wiki_pagelinks, config):
+        """
+        Args:
+        file (Path): Path to the file being processed
+        markdown_body (str): Rendered markdown content
+        wiki_pagelinks (dict): Dictionary of page links
+        config (dict): Configuration dictionary
+        Returns:
+        dict: Context for template rendering
+        """
+        # prepare base context
+        context = {
+            'title': file.stem,
+            'markdown_body': markdown_body,
+            'backlinks': wiki_pagelinks.get(file.stem.lower(), {}).get('backlinks', [])
+        }
+        # determine edit URL
+        if file.stem != 'README' and file.name != config.get('sidebar', ''):
+            if config.get('edit_url'):
+                context['edit_url'] = (
+                    f"{config['edit_url']}{config['edit_branch']}"
+                    f"{wiki_pagelinks.get(file.stem.lower(), {}).get('fs_path', '')}"
+                )
+                context['git_forge'] = git_forge_proper_name(config['edit_url'])
+        else:
+                # For README or sidebar, explicitly set empty edit_url
+                context['edit_url'] = ''
+        return context
+
     # set up lunr_index_filename and lunr_index_sitepath
     if (args[0].lunr):
         timestamp_thisrun = time.time()
@@ -267,26 +297,7 @@ def build_site(args):
                 # render and output HTML (empty edit_url on README and Sidebar pages)
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
                 markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id, websiteroot)
-                if Path(file).stem == 'README' or Path(file).name == config['sidebar']:
-                    html = render_template('page.html',
-                                           title=Path(file).stem,
-                                           markdown_body=markdown_body,
-                                           backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                           edit_url='')
-                else:
-                    if config['edit_url']:
-                        html = render_template('page.html',
-                                               title=Path(file).stem,
-                                               markdown_body=markdown_body,
-                                               backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                               edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
-                                               git_forge=git_forge_proper_name(config['edit_url']))
-                    else:
-                        html = render_template('page.html',
-                                               title=Path(file).stem,
-                                               markdown_body=markdown_body,
-                                               backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                               edit_url='')
+                html = render_template('page.html', **get_page_context(Path(file), markdown_body, wiki_pagelinks, config))
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
