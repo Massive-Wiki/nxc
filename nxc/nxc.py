@@ -274,12 +274,19 @@ def build_site(args):
                                            backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
                                            edit_url='')
                 else:
-                    html = render_template('page.html',
-                                           title=Path(file).stem,
-                                           markdown_body=markdown_body,
-                                           backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
-                                           edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
-                                           git_forge=git_forge_proper_name(config['edit_url']))
+                    if config['edit_url']:
+                        html = render_template('page.html',
+                                               title=Path(file).stem,
+                                               markdown_body=markdown_body,
+                                               backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
+                                               edit_url=f"{config['edit_url']}{config['edit_branch']}{wiki_pagelinks.get(Path(file).stem.lower())['fs_path']}",
+                                               git_forge=git_forge_proper_name(config['edit_url']))
+                    else:
+                        html = render_template('page.html',
+                                               title=Path(file).stem,
+                                               markdown_body=markdown_body,
+                                               backlinks=wiki_pagelinks.get(Path(file).stem.lower())['backlinks'],
+                                               edit_url='')
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
@@ -408,6 +415,7 @@ def init_site(directory):
         if os.path.exists(filename := f"{init_dir}/netlify.toml"):
             shutil.copy(filename, init_dir / "netlify-prior.toml")
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
+        # TODO: copy Sidebar.md; guard against overwriting an existing file
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".nxc" / "this-website-themes")
         # copy pip req'ts, javascript, and node info
@@ -425,7 +433,8 @@ def init_site(directory):
     website_title = input("Enter the website title: ")
     author_name = input("Enter the author name(s): ")
     git_repo = input("Enter Git repository url (for Edit button; optional): ")
-    git_repo = f"https://{git_repo}" if not git_repo.startswith("https://") else git_repo
+    if git_repo:
+        git_repo = f"https://{git_repo}" if not git_repo.startswith("https://") else git_repo
 
     # read in nxc.yaml template
     with open(templates_dir / 'nxc-template.yaml','r',encoding='utf-8') as f:
