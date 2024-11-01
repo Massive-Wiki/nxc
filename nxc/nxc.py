@@ -406,7 +406,9 @@ def build_site(args):
 # initialize new nxc directory
 def init_site(directory):
     # Check the specified directory
+    logger.debug(f"init directory: {directory}")
     init_dir = Path(directory)
+    logger.debug(f"init_dir: {init_dir}")
     if init_dir.exists():
         # if any(init_dir.iterdir()):
          if any(glob.iglob(f"{init_dir}/**/.nxc/nxc.yaml",recursive=True)):
@@ -447,7 +449,8 @@ def init_site(directory):
     # get configuration input
     website_title = input("Enter the website title: ")
     if not website_title: # if no title entered use init directory name
-        website_title = Path(init_dir).name
+        website_title = Path(init_dir).absolute().name
+    logger.debug(f"website title: {website_title}")
     author_name = input("Enter the author name(s): ")
     git_repo = input("Enter Git repository url (for Edit button; optional): ")
     if git_repo:
@@ -458,8 +461,8 @@ def init_site(directory):
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
-        # TODO: determine edit_url appropriate for the Git Forge
-        #  2024-07-14: this edit_url is for GitHub
+        # TODO: determine edit_url appropriate for the Git forge
+        #  2024-07-14: this hardcoded edit_url is for GitHub
         if git_repo:
             config_doc['edit_url'] = f"{git_repo}/edit/"
             config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
