@@ -426,7 +426,7 @@ def init_site(directory):
         if os.path.exists(filename := f"{init_dir}/netlify.toml"):
             shutil.copy(filename, init_dir / "netlify-prior.toml")
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
-        # copy Sidebar.md; do not overwrite an existing [Ss]idebar.md file
+        # copy Sidebar.md; do not overwrite an existing file TODO: ignore case
         if Path(f"{init_dir}/Sidebar.md").exists() or Path(f"{init_dir}/sidebar.md").exists():
             shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar-new.md")
         else:
@@ -446,6 +446,8 @@ def init_site(directory):
     logger.info(f"get and write config info into {init_dir}/.nxc/nxc.yaml")
     # get configuration input
     website_title = input("Enter the website title: ")
+    if not website_title: # if no title entered use init directory name
+        website_title = Path(init_dir).name
     author_name = input("Enter the author name(s): ")
     git_repo = input("Enter Git repository url (for Edit button; optional): ")
     if git_repo:
