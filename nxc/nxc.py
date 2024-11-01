@@ -426,7 +426,11 @@ def init_site(directory):
         if os.path.exists(filename := f"{init_dir}/netlify.toml"):
             shutil.copy(filename, init_dir / "netlify-prior.toml")
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
-        # TODO: copy Sidebar.md; guard against overwriting an existing file
+        # copy Sidebar.md; do not overwrite an existing [Ss]idebar.md file
+        if Path(f"{init_dir}/Sidebar.md").exists() or Path(f"{init_dir}/sidebar.md").exists():
+            shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar-new.md")
+        else:
+            shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar.md")
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".nxc" / "this-website-themes")
         # copy pip req'ts, javascript, and node info
