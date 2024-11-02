@@ -17,8 +17,10 @@ logger = logging.getLogger('nxc')
 # python libraries
 import argparse
 import datetime
+from dateutil.parser import parse
 import glob
 import hashlib
+import jinja2
 import json
 from pathlib import Path
 import re
@@ -28,8 +30,6 @@ import textwrap
 import time
 import traceback
 from urllib.parse import urlparse
-from dateutil.parser import parse
-import jinja2
 import yaml
 
 # pip install - mistletoe based Markdown to HTML conversion
@@ -428,7 +428,7 @@ def init_site(directory):
         if os.path.exists(filename := f"{init_dir}/netlify.toml"):
             shutil.copy(filename, init_dir / "netlify-prior.toml")
         shutil.copy(templates_dir / "netlify.toml", init_dir / "netlify.toml")
-        # copy Sidebar.md; do not overwrite an existing file TODO: ignore case
+        # copy Sidebar.md; do not overwrite an existing [S|s]idebar.md file
         if Path(f"{init_dir}/Sidebar.md").exists() or Path(f"{init_dir}/sidebar.md").exists():
             shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar-new.md")
         else:
