@@ -17,8 +17,8 @@ Once installed there is a `.nxc` directory containing a configuration file, the 
 ├── .nxc  # NXC workspace
 │   ├── nxc.yaml # configuration file for the website
 │   ├── build-index.js # full-text search Javascript code
-│   ├── package-lock.json
-│   ├── package.json
+│   ├── package-lock.json # node package info
+│   ├── package.json # node package info
 │   ├── requirements.txt # Python package dependencies
 │   └── this-website-themes
 │       └── dolce # the default theme; may be customized
@@ -55,33 +55,48 @@ this-website-themes
 
 ## Static Files
 
-After the HTML pages are built from the Markdown files, if a directory named `static` exists at the top level of the theme, all the files and directories within it are copied to the root of the output directory.  By convention, static files such as CSS, JavaScript, and images are put in a directory inside `static` called `mwb-static`. Favicon files and other files that should be at the root of the website are put at the root of `static`.
+After the HTML pages are built from the Markdown files, if a directory named `static` exists at the top level of the theme, all the files and directories within it are copied to the root of the output directory.  By convention, static files such as CSS, JavaScript, and images are put in a directory inside `static` called `nxc-static`. Favicon files and other files that should be at the root of the website are put at the root of `static`.
 
 The name `static` is used in the theme because it is descriptive, and will not collide with anything in the wiki. (The _content_ of `static` is copied, but not `static` itself.)
 
-The `nxc-static` directory contains static files used by the website it is named `nxc-static` to be less likely to collide with a website directory with the same name. (`nxc-static` itself _is_ copied to the output directory, where all the published website files and directories live.)
+The `nxc-static` directory contains static files used by the website. It is named `nxc-static` to be less likely to collide with a website directory with the same name. (`nxc-static` itself _is_ copied to the output directory, where all the published website files and directories live.)
 
 In the theme:
 
 ```
---/ # root of theme
----- static/ # anything in here is copied to the root of the output
------- favicon.ico # for instance, favicon.ico
------- mwb-static/ # static files and subdirectories that don't need to be at the root of the website
--------- css/
--------- js/
--------- images/
+dolce
+├── LICENSE
+├── README.md
+├── _footer.html
+├── _header.html
+├── _javascript.html
+├── all-pages.html
+├── page.html
+├── recent-pages.html
+├── search.html
+└── static
+    └── nxc-static
+        ├── css
+        │   ├── custom.css
+        │   └── style.css
+        └── js
+            └── script.js
 ```
+
 
 Results in the output website:
-
 ```
---/ # root of website
---- favicon.ico # for instance, favicon.ico
----- mwb-static/ # static files and subdirectories that don't need to be at the root of the website
------- css/
------- js/
------- images/
+output
+├── 
+├── nxc-static
+│   ├── css
+│   │   ├── custom.css
+│   │   └── style.css
+│   └── js
+│       └── script.js
+├──
+├── 
+└── 
 ```
 
 Side note about favicon files; it is suggested to use a favicon generator such as [RealFaviconGenerator](https://realfavicongenerator.net/) to create the various icon files needed for different platforms. This note is meant for informational purposes, and does not represent an endorsement of RealFaviconGenerator in particular.
@@ -105,7 +120,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install nxc
-# TODO: add instructions to run nxc to init this directory (after testing)
+nxc init .
 ```
 
 ## Running nxc
@@ -133,8 +148,8 @@ If `./directory-name` does not exist, it is created and populated with the NXC d
 Initialization requests website information on the Terminal command line; viz.:
 ```shell
 Enter the website title: # the title at the top of every webpage
-Enter the author name(s): # name(s) shown in page footer
-Enter Git repository url (for Edit button; optional): # e.g., github.com/band/directory-name
+Enter the author name(s): # name(s) shown in page footer; optional
+Enter Git repository url (for Edit page button; optional): # e.g., github.com/band/directory-name
 ```
 
 ### Build
@@ -144,6 +159,7 @@ In `.nxc/`:
 ```shell
 nxc -i .. -o output --lunr --commits
 ```
+This command builds html pages for all Markdown pages rooted in the parent directory, and writes them to the `./output` directory. A Lunr search index is created, and information from the latest commit of each file is used to populate “All Pages” and “Recent Pages” web pages.
 
 If you want to print a log what's happening during the build, set the `LOGLEVEL` environment variable to `DEBUG`.
 
@@ -172,12 +188,11 @@ In `netlify.toml`, do:
 To output authors, commit messages, and timestamps for each page in the All Pages page, include the `--commits` flag:
 
 ```shell
-./mwb.py -c mwb.yaml -w .. -o output -t massive-wiki-themes/alto --commits
+nxc -i .. -o output --commits
 ```
 
 In the `all-pages.html` template (template may have a different file name), the following variables are available when `--commits` is active:
 
-- `pages_chrono` - an array of all the pages, sorted chronologically
 - `page.author` - the author name of the most recent commit for this page
 - `page.change` - the commit message for the most recent commit for this page
 - `page.date` - the timestamp for the most recent commit for this page
@@ -189,20 +204,20 @@ If `--commits` is not active, each of those variables is set to empty string `''
 To build an index for the [Lunr](https://lunrjs.com/) search engine, include the `--lunr` flag:
 
 ```shell
-./mwb.py -c mwb.yaml -w .. -o output -t massive-wiki-themes/alto --lunr
+nxc -i .. -o output --lunr
 ```
 
 Lunr is a JavaScript library, so Node.js (`node`) and the Lunr library must be installed.
 
 To install Node, see <https://nodejs.org/en/download/>. On Mac, you may want to do `brew install node`.
 
-To install Lunr, in `.massivewikibuilder/massivewikibuilder` do:
+To install Lunr, in `.nxc` do:
 
 ```shell
 npm ci # reads package.json and package-lock.json
 ```
 
-When MWB runs, the Lunr indexes are generated at the root of the output directory, named like this (numbers change every microsecond): `lunr-index-1656193058.85086.js` (the reverse index) and `lunr-posts-1656193058.85086.js` (relates filepaths used by Lunr as keys, to human-readable page names).
+When NXC runs, the Lunr indexes are generated at the root of the output directory, named like this (numbers change every microsecond): `lunr-index-1656193058.85086.js` (the reverse index) and `lunr-posts-1656193058.85086.js` (relates filepaths used by Lunr as keys, to human-readable page names).
 
 Two template variables, `lunr_index_sitepath` and  `lunr_posts_sitepath`, containing the website paths to the generated index JavaScript files, are passed to templates as the pages are built.
 
