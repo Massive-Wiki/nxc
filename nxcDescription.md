@@ -6,7 +6,7 @@
 
 For document collections that are versioned with Git, the generated website can display a table of all pages in the collection that can be sorted by file name or time of most recent change.
 
-## Typical Installation Hierarchy
+## Typical Installation Directory Structure
 
 Once installed there is a `.nxc` directory containing a configuration file, the Python and Javascript files, and the website theme files and directories.
 
@@ -23,10 +23,9 @@ Once installed there is a `.nxc` directory containing a configuration file, the 
 │   └── this-website-themes
 │       └── dolce # the default theme; may be customized
 ├── Sidebar.md # default webpage sidebar
+├── .gitignore # files and directories ignored by Git
 └── netlify.toml # website build instructions for netlify service
 ```
-
-Note that NXC removes (if necessary) and recreates the `output` directory each time it is run.
 
 ## Theme Files
 
@@ -52,54 +51,6 @@ this-website-themes
             └── js
                 └── script.js
 ```
-
-## Static Files
-
-After the HTML pages are built from the Markdown files, if a directory named `static` exists at the top level of the theme, all the files and directories within it are copied to the root of the output directory.  By convention, static files such as CSS, JavaScript, and images are put in a directory inside `static` called `nxc-static`. Favicon files and other files that should be at the root of the website are put at the root of `static`.
-
-The name `static` is used in the theme because it is descriptive, and will not collide with anything in the wiki. (The _content_ of `static` is copied, but not `static` itself.)
-
-The `nxc-static` directory contains static files used by the website. It is named `nxc-static` to be less likely to collide with a website directory with the same name. (`nxc-static` itself _is_ copied to the output directory, where all the published website files and directories live.)
-
-In the theme:
-
-```
-dolce
-├── LICENSE
-├── README.md
-├── _footer.html
-├── _header.html
-├── _javascript.html
-├── all-pages.html
-├── page.html
-├── recent-pages.html
-├── search.html
-└── static
-    └── nxc-static
-        ├── css
-        │   ├── custom.css
-        │   └── style.css
-        └── js
-            └── script.js
-```
-
-
-Results in the output website:
-```
-output
-├── 
-├── nxc-static
-│   ├── css
-│   │   ├── custom.css
-│   │   └── style.css
-│   └── js
-│       └── script.js
-├──
-├── 
-└── 
-```
-
-Side note about favicon files; it is suggested to use a favicon generator such as [RealFaviconGenerator](https://realfavicongenerator.net/) to create the various icon files needed for different platforms. This note is meant for informational purposes, and does not represent an endorsement of RealFaviconGenerator in particular.
 
 ## Install
 
@@ -136,7 +87,6 @@ You can get help with `nxc` with the `-h` or `--help` flag:
 nxc -h
 ```
 
-
 ### Initialization
 
 ```shell
@@ -161,7 +111,10 @@ nxc -i .. -o output --lunr --commits
 ```
 This command builds html pages for all Markdown pages rooted in the parent directory, and writes them to the `./output` directory. A Lunr search index is created, and information from the latest commit of each file is used to populate “All Pages” and “Recent Pages” web pages.
 
-If you want to print a log what's happening during the build, set the `LOGLEVEL` environment variable to `DEBUG`.
+
+Note that NXC removes (if necessary) and recreates the `output` directory each time `nxc build` is run.
+
+If you want to print a log what is happening during the build, set the `LOGLEVEL` environment variable to `DEBUG`.
 
 On the command line, do:
 
@@ -295,3 +248,52 @@ NXC uses a simple theming system.  All the files for one theme are placed in a s
 NXC builds the pages with the Jinja2 templating enging, so you can use Jinja2 directives within the HTML files to include document metadata and markdown content.  You can also use the Jinja2 `include` functionality to extract reused parts of the page to HTML "partial" files.
 
 A collection of themes are in a separate repo, [github/peterkaminski/massive-wiki-themes](https://github.com/peterkaminski/massive-wiki-themes). For Massive Wiki Builder v2.2.0, you should use Massive Wiki Themes version 2023-02-09-001 or later. TODO: update this
+
+
+## Static Files
+
+After the HTML pages are built from the Markdown files, if a directory named `static` exists at the top level of the theme, all the files and directories within it are copied to the root of the output directory.  By convention, static files such as CSS, JavaScript, and images are put in a directory inside `static` called `nxc-static`. Favicon files and other files that should be at the root of the website are put at the root of `static`.
+
+The name `static` is used in the theme because it is descriptive, and will not collide with anything in the wiki. (The _content_ of `static` is copied, but not `static` itself.)
+
+The `nxc-static` directory contains static files used by the website. It is named `nxc-static` to be less likely to collide with a website directory with the same name. (`nxc-static` itself _is_ copied to the output directory, where all the published website files and directories live.)
+
+In the theme:
+
+```
+dolce
+├── LICENSE
+├── README.md
+├── _footer.html
+├── _header.html
+├── _javascript.html
+├── all-pages.html
+├── page.html
+├── recent-pages.html
+├── search.html
+└── static
+    └── nxc-static
+        ├── css
+        │   ├── custom.css
+        │   └── style.css
+        └── js
+            └── script.js
+```
+
+
+Results in the output website:
+```
+output
+├── 
+├── nxc-static
+│   ├── css
+│   │   ├── custom.css
+│   │   └── style.css
+│   └── js
+│       └── script.js
+├──
+├── 
+└── 
+```
+
+Side note about favicon files; it is suggested to use a favicon generator such as [RealFaviconGenerator](https://realfavicongenerator.net/) to create the various icon files needed for different platforms. This note is meant for informational purposes, and does not represent an endorsement of RealFaviconGenerator in particular.
