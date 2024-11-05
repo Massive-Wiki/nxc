@@ -433,6 +433,13 @@ def init_site(directory):
             shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar-new.md")
         else:
             shutil.copy(templates_dir / "Sidebar.md", init_dir / "Sidebar.md")
+        # copy .gitignore to the new directory root; append if an ignore file exists
+        gitignore_file = f"{init_dir}/.gitignore"
+        if Path(gitignore_file).exists():
+            with open(templates_dir / "gitignore-template.txt",'r') as source, open(gitignore_file, 'a') as target:
+                target.write(source.read())
+        else:
+            shutil.copy(templates_dir / "gitignore-template.txt", init_dir / ".gitignore")
         # copy this-website-themes directory
         shutil.copytree(templates_dir / "this-website-themes", init_dir / ".nxc" / "this-website-themes")
         # copy pip req'ts, javascript, and node info
@@ -462,7 +469,7 @@ def init_site(directory):
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
         # TODO: determine edit_url appropriate for the Git forge
-        #  2024-07-14: this hardcoded edit_url is for GitHub
+        #  2024-07-14: this edit_url is now hardcoded for GitHub
         if git_repo:
             config_doc['edit_url'] = f"{git_repo}/edit/"
             config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
@@ -490,7 +497,7 @@ def main():
     parser_build.add_argument('-o', '--output', required=True, help='output website directory')
     parser_build.add_argument('--config', '-c', default='./nxc.yaml', help='path to YAML config file')
     parser_build.add_argument('--templates', '-t', default='./this-website-themes/dolce', help='directory for HTML templates')    
-    parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host Github Pages)')
+    parser_build.add_argument('--root', '-r', default='', help='name for website root directory (to host GitHub Pages)')
     parser_build.add_argument('--lunr', action='store_true', help='include this to create lunr index (requires npm and lunr to be installed, read docs)')
     parser_build.add_argument('--commits', action='store_true', help='include this to read Git commit messages and times, for All Pages')
     parser_build.set_defaults(cmd='build')
