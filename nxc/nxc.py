@@ -468,10 +468,14 @@ def init_site(directory):
         config_doc = yaml.safe_load(f)
         config_doc['wiki_title'] = website_title
         config_doc['author'] = author_name
-        # TODO: determine edit_url appropriate for the Git forge
-        #  2024-07-14: this edit_url is now hardcoded for GitHub
+        # 2024-11-07: edit_url supports GitHub and GitLab only
         if git_repo:
-            config_doc['edit_url'] = f"{git_repo}/edit/"
+            if urlparse(git_repo).netloc == 'github.com':
+                config_doc['edit_url'] = f"{git_repo}/edit/"
+            elif urlparse(git_repo).netloc == 'gitlab.com':
+                config_doc['edit_url'] = f"{git_repo}/-/edit/"
+            else:
+                config_doc['edit_url'] = ''
             config_doc['repo'] = f'<a href="{git_repo}">{git_repo.split("/")[-1]}</a>'
         else:
             config_doc['edit_url'] = ''
