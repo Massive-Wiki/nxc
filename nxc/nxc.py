@@ -222,10 +222,14 @@ def build_site(args):
         shutil.rmtree(dir_output, ignore_errors=True)
         os.mkdir(dir_output)
 
-        # insure that a README.md or index.md file exists at wiki root directory; create if needed
-        if not any(Path(f).exists() for f in ["README.md", "index.md"]):
-            lines=[f"# {config['wiki_title']}", '', 'This is the home page of this website.']
-            Path('index.md').write_text("\n".join(lines) + "\n")
+        # insure that a README.md file exists at wiki root directory; create if needed
+        # TODO: rename any existing index.html file
+        if not Path(f"{dir_wiki}/README.md").exists(): 
+            if Path(f"{dir_wiki}/index.md").exists():
+                shutil.copy(Path(f"{dir_wiki}/index.md").as_posix(), f"{dir_wiki}/README.md")
+            else:
+                lines=[f"# {config['wiki_title']}", '', 'This is the home page of this website.']
+                Path(f"{dir_wiki}/README.md").write_text("\n".join(lines) + "\n")
 
         # get list of wiki files using a glob.iglob iterator (consumed in list comprehension)
         # 'include_hidden=False' requires Python 3.11 - TODO: use `include_hidden=False` when we have 3.11 support
