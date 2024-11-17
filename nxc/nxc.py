@@ -223,10 +223,12 @@ def build_site(args):
         os.mkdir(dir_output)
 
         # insure that a README.md file exists at wiki root directory; create if needed
-        # TODO: rename any existing index.html file
+        #   FIRST rename any existing index.html file
+        if Path(f"{dir_wiki}/index.html").exists():
+           Path(f"{dir_wiki}/index.html").rename(f"{dir_wiki}/previous-index.html") 
         if not Path(f"{dir_wiki}/README.md").exists(): 
             if Path(f"{dir_wiki}/index.md").exists():
-                shutil.copy(Path(f"{dir_wiki}/index.md").as_posix(), f"{dir_wiki}/README.md")
+                shutil.copy(f"{dir_wiki}/index.md", f"{dir_wiki}/README.md")
             else:
                 lines=[f"# {config['wiki_title']}", '', 'This is the home page of this website.']
                 Path(f"{dir_wiki}/README.md").write_text("\n".join(lines) + "\n")
