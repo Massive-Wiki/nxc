@@ -308,10 +308,7 @@ def build_site(args):
                 # render and output HTML (empty edit_url on README and Sidebar pages)
                 file_id = hashlib.md5(Path(file).stem.lower().encode()).hexdigest()
                 markdown_body = markdown_convert(markdown_text, rootdir, args[0].input, file_id, websiteroot)
-                page_context = get_page_context(Path(file), markdown_body, wiki_pagelinks, config)
-                # add bluesky_comments from front matter or use empty string
-                page_context['bluesky_comments_post'] = front_matter.get('bluesky_comments_post', '')
-                html = render_template('page.html', **page_context)
+                html = render_template('page.html', **get_page_context(Path(file), markdown_body, wiki_pagelinks, config))
                 (Path(dir_output+clean_filepath).with_suffix(".html")).write_text(html)
                 
                 # get commit message and time
