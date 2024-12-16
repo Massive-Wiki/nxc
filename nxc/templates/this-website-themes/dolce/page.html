@@ -37,7 +37,27 @@
       {% endif %}
     </div>
   </div>
-  {% include '_footer.html' %}
+  {% if bluesky_comments_post %}
+  <div id="bluesky-comments"></div>
   <script src="{{websiteroot}}/mwb-static/js/script.js"></script>
+  <script type="importmap">
+    {
+	"imports": {
+	    "react": "https://esm.sh/react@18",
+	    "react-dom": "https://esm.sh/react-dom@18"
+	}
+    }
+  </script>
+  <script type="module">
+    import BlueskyComments from 'https://unpkg.com/bluesky-comments@0.5.1/dist/bluesky-comments.es.js';
+    document.addEventListener('DOMContentLoaded', function() {
+	const uri = '{{bluesky_comments_post}}';
+	if (uri) {
+	    BlueskyComments.init('bluesky-comments', {uri});
+	}
+    });
+  </script>
+  {% endif %}
+  {% include '_footer.html' %}
 </body>
 </html>
