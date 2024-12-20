@@ -19,5 +19,21 @@ The `nxc` PyPI package proveds a command-line utility that:
 - Access to file system operations that might need administrative, or appropriate user, permissions depending on the setup.  
 
 ## Usage
-- To be documented once the PyPI package testing is completed.
+- This package is still being tested and is housed on `test.pyi.org`;
+it can be installed using `pip`:  
+
+``` shell
+pip install --extra-index-url https://test.pypi.org/simple/ nxc
+```  
+
+- Once installed usage information is available using `--help` or `-h`
+  options; e.g.:  
+
+``` shell
+nxc --help|-h
+```
+
+- Further documentation is under development.  
+
+
 
