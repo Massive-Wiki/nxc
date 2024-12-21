@@ -2,23 +2,16 @@
 
 ## Overview
 
-The `nxc` PyPI package proveds a command-line utility that:  
-1. initializes an `nxc` project directory with required configuration and web template files to support web publishing. This utility copies a predefined set of templates into a specified directory.
-2. builds a static website from Markdown files in an initialized directory.
-
-## Features
-
-- **Directory Initialization**: Creates a new directory or utilizes an existing one (if empty, or if not yet initialized) to set up the starter files.  
-- **Website Building**: Constructs a static website from a collection of Markdown files.    
-- **Error Handling**: Provides logging and error handling to manage issues like non-empty directories or permission errors.    
-- **Template Copying**: Copies specific template files and directories from a `templates` adjacent to the script.  
+The `nxc` PyPI package builds a static website from a directory of Markdown files.  
+The website supports wiki-links, transclusion, and provides full-text
+search.
 
 ## Requirements
 
-- Python 3.8  
-- Access to file system operations that might need administrative, or appropriate user, permissions depending on the setup.  
+- Python 3.8 or higher.
 
-## Usage
+## Install
+
 - This package is still being tested and is housed on `test.pyi.org`;
 it can be installed using `pip`:  
 
@@ -26,12 +19,16 @@ it can be installed using `pip`:
 pip install --extra-index-url https://test.pypi.org/simple/ nxc
 ```  
 
-- Once installed usage information is available using `--help` or `-h`
+## Usage
+
+- Once installed use information is available using `--help` or `-h`
   options; e.g.:  
 
 ``` shell
 nxc --help|-h
 ```
+
+TODO: provide an example of initialization and build  
 
 - Further documentation is under development.  
 
